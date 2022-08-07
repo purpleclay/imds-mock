@@ -13,3 +13,14 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# Built dependencies
+completions/
+manpages/
+imds-mock
+
+# GoReleaser build output
+dist/
+
+# Mkdocs
+.cache/
