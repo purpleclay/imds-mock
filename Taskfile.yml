@@ -1,0 +1,53 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  BINDIR: bin
+  BINNAME: imds-mock
+  GIT_COMMIT:
+    sh: git rev-parse HEAD
+  GIT_SHA:
+    sh: git rev-parse --short HEAD
+  GIT_BRANCH:
+    sh: git branch --show-current
+  LDFLAGS: >
+    -X github.com/purpleclay/imds-mock/cmd.version=dev-{{.GIT_SHA}}
+    -X github.com/purpleclay/imds-mock/cmd.gitCommit={{.GIT_COMMIT}}
+    -X github.com/purpleclay/imds-mock/cmd.gitBranch={{.GIT_BRANCH}}
+    -X github.com/purpleclay/imds-mock/cmd.buildDate={{now | date "2006-01-02T15:04:05Z07:00"}}
+
+tasks:
+  default:
+    desc: Runs all of the default tasks
+    cmds:
+      - task: lint
+      - task: test
+      - task: build
+
+  build:
+    desc: Build the imds-mock binary
+    cmds:
+      - go build -ldflags '-s -w {{.LDFLAGS}}' .
+
+  test:
+    desc: Run the tests
+    cmds:
+      - go test -race -vet=off -p 1 -covermode=atomic -coverprofile=coverage.out ./...
+
+  lint:
+    desc: Lint the code using golangci
+    cmds:
+      - golangci-lint run --timeout 5m0s
+
+  fmt:
+    desc: gofumpt all code
+    cmds:
+      - gofumpt -w -l .
+
+  clean:
+    desc: Delete all artefacts from recent build
+    cmds:
+      - rm ./{{.BINNAME}}
+    status:
+      - test -f ./{{.BINNAME}}
