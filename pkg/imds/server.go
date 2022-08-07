@@ -31,13 +31,8 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-//go:embed basic.json
-var basicResponse []byte
-
-/*
-TODO: if unknown path used
-
-<?xml version="1.0" encoding="iso-8859-1"?>
+const (
+	notFound = `<?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -47,8 +42,11 @@ TODO: if unknown path used
  <body>
   <h1>404 - Not Found</h1>
  </body>
-</html>
-*/
+</html>`
+)
+
+//go:embed basic.json
+var basicResponse []byte
 
 // StartAndListen ...
 func StartAndListen() {
@@ -57,38 +55,51 @@ func StartAndListen() {
 	// see: https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies
 	r.SetTrustedProxies(nil)
 
-	// TODO: return XML if path doesn't exist within the JSON
-
 	r.GET("/latest/meta-data", func(c *gin.Context) {
-		keys := gjson.GetBytes(basicResponse, "@keys").Array()
-
-		categories := make([]string, 0, len(keys))
-		for _, key := range keys {
-			categories = append(categories, key.String())
-		}
-
-		c.String(http.StatusOK, strings.Join(categories, "\n"))
+		c.String(http.StatusOK, keys(basicResponse, ""))
 	})
 
 	r.GET("/latest/meta-data/*category", func(c *gin.Context) {
+		categoryPath := c.Param("category")
+		if categoryPath == "/" {
+			// Exact same behaviour as /latest/meta-data
+			c.String(http.StatusOK, keys(basicResponse, ""))
+			return
+		}
+
 		// Convert param into gjson path query
-		path := strings.ReplaceAll(c.Param("category"), "/", ".")[1:]
-		res := gjson.GetBytes(basicResponse, path)
+		categoryPath = strings.ReplaceAll(categoryPath, "/", ".")[1:]
+		res := gjson.GetBytes(basicResponse, categoryPath)
 
+		if !res.Exists() {
+			c.Writer.Header().Add("Content-Type", "text/html")
+			c.String(http.StatusNotFound, notFound)
+			return
+		}
+
+		// If the path returns a JSON object, then return a set of keys
 		if res.IsObject() {
-			// TODO: duplicate code
-			keys := gjson.GetBytes(basicResponse, path+".@keys").Array()
-
-			categories := make([]string, 0, len(keys))
-			for _, key := range keys {
-				categories = append(categories, key.String())
-			}
-
-			c.String(http.StatusOK, strings.Join(categories, "\n"))
+			c.String(http.StatusOK, keys(basicResponse, categoryPath))
 		} else {
 			c.String(http.StatusOK, res.String())
 		}
 	})
 
 	r.Run()
+}
+
+func keys(json []byte, path string) string {
+	query := "@keys"
+	if path != "" {
+		query = path + ".@keys"
+	}
+
+	keys := gjson.GetBytes(json, query).Array()
+
+	categories := make([]string, 0, len(keys))
+	for _, key := range keys {
+		categories = append(categories, key.String())
+	}
+
+	return strings.Join(categories, "\n")
 }
