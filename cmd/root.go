@@ -26,6 +26,7 @@ import (
 	ctx "context"
 	"io"
 
+	"github.com/purpleclay/imds-mock/pkg/imds"
 	"github.com/spf13/cobra"
 )
 
@@ -33,8 +34,8 @@ func Execute(out io.Writer) error {
 	rootCmd := &cobra.Command{
 		Use:   "imds-mock",
 		Short: "Mock the Amazon Instance Metadata Service (IMDS) for EC2",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return nil
+		Run: func(cmd *cobra.Command, args []string) {
+			imds.StartAndListen()
 		},
 	}
 
