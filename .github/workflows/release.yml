@@ -84,6 +84,15 @@ jobs:
           FURY_TOKEN: ${{ secrets.GH_FURY_TOKEN }}
           AUR_KEY: ${{ secrets.GH_AUR_KEY }}
 
+      - name: Docker Hub Description
+        uses: peter-evans/dockerhub-description@v3
+        with:
+          username: ${{ secrets.GH_DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.GH_DOCKER_HUB_PASSWORD }}
+          repository: "purpleclay/imds-mock"
+          short-description: "Mock the Amazon Instance Metadata Service (IMDS) for EC2"
+          readme-filepath: ./README.md
+
       - name: Trivy Vulnerability Scan
         uses: aquasecurity/trivy-action@0.5.0
         with:
