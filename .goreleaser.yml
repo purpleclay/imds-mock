@@ -107,6 +107,70 @@ signs:
       - "--output-signature=${signature}"
       - "${artifact}"
 
+docker_signs:
+  - cmd: cosign
+    env:
+      - COSIGN_EXPERIMENTAL=1
+    artifacts: manifests
+    output: true
+    args:
+      - "sign"
+      - "${artifact}"
+
+dockers:
+  - image_templates:
+      - "purpleclay/imds-mock:{{ .Tag }}-amd64"
+      - "ghcr.io/purpleclay/imds-mock:{{ .Tag }}-amd64"
+    goos: linux
+    goarch: amd64
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.licenses=MIT"
+      - "--label=org.opencontainers.image.description=Mock the Amazon Instance Metadata Service (IMDS) for EC2"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/amd64"
+  - image_templates:
+      - "purpleclay/imds-mock:{{ .Tag }}-arm64"
+      - "ghcr.io/purpleclay/imds-mock:{{ .Tag }}-arm64"
+    goos: linux
+    goarch: arm64
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.licenses=MIT"
+      - "--label=org.opencontainers.image.description=Mock the Amazon Instance Metadata Service (IMDS) for EC2"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/arm64"
+
+docker_manifests:
+  - name_template: "purplelcay/imds-mock:{{ .Tag }}"
+    image_templates:
+      - "purplelcay/imds-mock:{{ .Tag }}-amd64"
+      - "purplelcay/imds-mock:{{ .Tag }}-arm64"
+  - name_template: "purplelcay/imds-mock:latest"
+    image_templates:
+      - "purplelcay/imds-mock:{{ .Tag }}-amd64"
+      - "purplelcay/imds-mock:{{ .Tag }}-arm64"
+  - name_template: "ghcr.io/purplelcay/imds-mock:{{ .Tag }}"
+    image_templates:
+      - "ghcr.io/purplelcay/imds-mock:{{ .Tag }}-amd64"
+      - "ghcr.io/purplelcay/imds-mock:{{ .Tag }}-arm64"
+  - name_template: "ghcr.io/purplelcay/imds-mock:latest"
+    image_templates:
+      - "ghcr.io/purplelcay/imds-mock:{{ .Tag }}-amd64"
+      - "ghcr.io/purplelcay/imds-mock:{{ .Tag }}-arm64"
+
 brews:
   - name: imds-mock
     tap:
