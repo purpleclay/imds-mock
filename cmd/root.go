@@ -35,7 +35,7 @@ func Execute(out io.Writer) error {
 		Use:   "imds-mock",
 		Short: "Mock the Amazon Instance Metadata Service (IMDS) for EC2",
 		Run: func(cmd *cobra.Command, args []string) {
-			imds.StartAndListen()
+			imds.Serve(imds.DefaultOptions)
 		},
 	}
 

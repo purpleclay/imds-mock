@@ -29,6 +29,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/tidwall/gjson"
+	"github.com/tidwall/pretty"
 )
 
 const (
@@ -48,8 +49,26 @@ const (
 //go:embed on-demand.json
 var onDemandResponse []byte
 
-// StartAndListen launches the IMDS mock and listens for HTTP requests on the incoming port
-func StartAndListen() {
+// Options ...
+type Options struct {
+	AutoStart bool
+}
+
+// DefaultOptions ...
+var DefaultOptions = Options{
+	AutoStart: true,
+}
+
+// Used as a hashset for quick lookups. Any matched path will just return its value
+// and not be used to perform a key lookup
+var reservedPaths = map[string]struct{}{
+	"iam.info":                 {},
+	"iam.security-credentials": {},
+}
+
+// Serve configures the IMDS mock based on the incoming options to handle HTTP requests
+// in the exact same way as the IMDS service accessible from an EC2 instance
+func Serve(with Options) *gin.Engine {
 	r := gin.Default()
 
 	// see: https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies
@@ -79,15 +98,26 @@ func StartAndListen() {
 			return
 		}
 
+		c.Writer.Header().Add("Content-Type", "text/plain")
+
 		// If the path returns a JSON object, then return a set of keys
-		if res.IsObject() {
+		if res.IsObject() && notReservedPath(categoryPath) {
 			c.String(http.StatusOK, keys(onDemandResponse, categoryPath))
 		} else {
-			c.String(http.StatusOK, res.String())
+			out := res.String()
+			if res.IsObject() {
+				out = string(pretty.Ugly([]byte(out)))
+			}
+
+			c.String(http.StatusOK, out)
 		}
 	})
 
-	r.Run(":1338")
+	if with.AutoStart {
+		r.Run(":1338")
+	}
+
+	return r
 }
 
 func keys(json []byte, path string) string {
@@ -116,4 +146,9 @@ func keys(json []byte, path string) string {
 	}
 
 	return strings.Join(categories, "\n")
+}
+
+func notReservedPath(path string) bool {
+	_, ok := reservedPaths[path]
+	return !ok
 }
