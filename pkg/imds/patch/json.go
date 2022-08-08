@@ -22,8 +22,8 @@ SOFTWARE.
 
 package patch
 
-// ResponsePatcher ...
-type ResponsePatcher interface {
+// JSONPatcher ...
+type JSONPatcher interface {
 	// Patch ...
-	Patch(in []byte) []byte
+	Patch(in []byte) ([]byte, error)
 }

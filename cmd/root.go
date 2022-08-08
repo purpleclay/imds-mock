@@ -44,8 +44,9 @@ func Execute(out io.Writer) error {
 	}
 
 	flags := rootCmd.Flags()
-	flags.BoolVar(&opts.Pretty, "pretty", imds.DefaultOptions.Pretty, "if instance categories should return pretty printed JSON")
+	flags.BoolVar(&opts.InstanceTags, "include-instance-tags", imds.DefaultOptions.InstanceTags, "include access to instance tags associated with the instance")
 	flags.IntVar(&opts.Port, "port", imds.DefaultOptions.Port, "the port to be used at startup")
+	flags.BoolVar(&opts.Pretty, "pretty", imds.DefaultOptions.Pretty, "if instance categories should return pretty printed JSON")
 
 	rootCmd.AddCommand(newVersionCmd(out))
 	rootCmd.AddCommand(newManPagesCmd(out))

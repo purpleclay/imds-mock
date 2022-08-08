@@ -29,6 +29,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/purpleclay/imds-mock/pkg/imds/patch"
 	"github.com/tidwall/gjson"
 )
 
@@ -58,21 +59,25 @@ type Options struct {
 	// after initialisation
 	AutoStart bool
 
-	// Pretty controls if the JSON outputted by any instance category
-	// is pretty printed. By default all JSON will be compacted
-	Pretty bool
+	// InstanceTags ...
+	InstanceTags bool
 
 	// Port controls the port that is used by the IMDS mock. By default
 	// it will use port 1338
 	Port int
+
+	// Pretty controls if the JSON outputted by any instance category
+	// is pretty printed. By default all JSON will be compacted
+	Pretty bool
 }
 
 // DefaultOptions defines the default set of options that will be applied
 // to the IMDS mock upon startup
 var DefaultOptions = Options{
-	AutoStart: true,
-	Pretty:    false,
-	Port:      1338,
+	AutoStart:    true,
+	InstanceTags: false,
+	Port:         1338,
+	Pretty:       false,
 }
 
 // Used as a hashset for quick lookups. Any matched path will just return its value
@@ -103,17 +108,22 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 	// see: https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies
 	r.SetTrustedProxies(nil)
 
-	// TODO: generate response JSON after applying all patches
+	// Dynamically build the JSON response message used by the mock by using JSON
+	// patching strategies defined by the input options
+	mockResponse, err := patchResponseJSON(onDemandResponse, opts)
+	if err != nil {
+		return nil, err
+	}
 
 	r.GET("/latest/meta-data", func(c *gin.Context) {
-		c.String(http.StatusOK, keys(onDemandResponse, ""))
+		c.String(http.StatusOK, keys(mockResponse, ""))
 	})
 
 	r.GET("/latest/meta-data/*category", func(c *gin.Context) {
 		categoryPath := c.Param("category")
 		if categoryPath == "/" {
 			// Exact same behaviour as /latest/meta-data
-			c.String(http.StatusOK, keys(onDemandResponse, ""))
+			c.String(http.StatusOK, keys(mockResponse, ""))
 			return
 		}
 
@@ -121,7 +131,7 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 		categoryPath = strings.TrimSuffix(categoryPath, "/")
 		categoryPath = strings.ReplaceAll(categoryPath, "/", ".")[1:]
 
-		res := gjson.GetBytes(onDemandResponse, categoryPath)
+		res := gjson.GetBytes(mockResponse, categoryPath)
 
 		if !res.Exists() {
 			c.Writer.Header().Add("Content-Type", "text/html")
@@ -133,13 +143,12 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 
 		// If the path returns a JSON object, then return a set of keys
 		if res.IsObject() && notReservedPath(categoryPath) {
-			c.String(http.StatusOK, keys(onDemandResponse, categoryPath))
+			c.String(http.StatusOK, keys(mockResponse, categoryPath))
 		} else {
 			c.String(http.StatusOK, res.String())
 		}
 	})
 
-	var err error
 	if opts.AutoStart {
 		err = r.Run(":" + strconv.Itoa(opts.Port))
 	}
@@ -178,4 +187,24 @@ func keys(json []byte, path string) string {
 func notReservedPath(path string) bool {
 	_, ok := reservedPaths[path]
 	return !ok
+}
+
+func patchResponseJSON(in []byte, opts Options) ([]byte, error) {
+	// Build up a list of ordered patching strategies and apply
+	patches := make([]patch.JSONPatcher, 0)
+
+	if opts.InstanceTags {
+		patches = append(patches, patch.InstanceTag{
+			Tags: map[string]string{
+				"Name": "ec2-imds-mock",
+			},
+		})
+	}
+
+	// TODO: how to handle errors
+	for _, p := range patches {
+		in, _ = p.Patch(in)
+	}
+
+	return in, nil
 }

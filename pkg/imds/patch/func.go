@@ -27,8 +27,8 @@ import (
 	"strings"
 )
 
-// JsonPairs ...
-func JsonPairs(in map[string]string) string {
+// JSONPairs ...
+func JSONPairs(in map[string]string) string {
 	pairs := make([]string, 0, len(in))
 	for k, v := range in {
 		pairs = append(pairs, fmt.Sprintf(`"%s": "%s"`, k, v))

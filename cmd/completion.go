@@ -76,7 +76,7 @@ func newCompletionCmd(out io.Writer) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "completion",
-		Short: "Generate completion script for your target shell",
+		Short: "Generate a completion script for your target shell",
 		Long:  "Generate an imds-mock completion script for either the bash, zsh or fish shells",
 	}
 

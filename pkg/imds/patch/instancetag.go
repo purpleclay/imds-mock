@@ -40,7 +40,7 @@ const instanceTagTemplate = `[
 ]`
 
 var instanceTagPatch = template.Must(template.New("InstanceTagPatch").
-	Funcs(template.FuncMap{"jsonPairs": JsonPairs}).
+	Funcs(template.FuncMap{"jsonPairs": JSONPairs}).
 	Parse(instanceTagTemplate))
 
 // InstanceTag ...
