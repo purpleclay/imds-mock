@@ -197,14 +197,6 @@ brews:
       installed_version = shell_output("#{bin}/imds-mock version --short 2>&1")
       assert_match "v#{version}", installed_version
 
-scoop:
-  bucket:
-    owner: purpleclay
-    name: scoop-bucket
-  homepage: "https://github.com/purpleclay/imds-mock"
-  description: "Grab yourself a imds-mock and pour yourself some Homebrew"
-  license: MIT
-
 nfpms:
   - file_name_template: "{{ .ConventionalFileName }}"
     id: packages
