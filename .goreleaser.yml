@@ -36,7 +36,6 @@ builds:
     goos:
       - linux
       - darwin
-      - windows
     goarch:
       - amd64
       - "386"
@@ -58,9 +57,6 @@ archives:
     replacements:
       386: i386
       amd64: x86_64
-    format_overrides:
-      - goos: windows
-        format: zip
     files:
       - README.md
       - LICENSE
@@ -226,4 +222,4 @@ release:
     ## What to do next?
 
     - Follow me on [Twitter](https://twitter.com/purpleclaydev)
-    - Read an article on [Medium]()
+    - Read an article on [Medium](https://medium.com/@purpleclay)
