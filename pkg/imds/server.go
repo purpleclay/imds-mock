@@ -49,6 +49,8 @@ const (
 //go:embed on-demand.json
 var onDemandResponse []byte
 
+// JSON base > patch with JSON template
+
 // Options provides a set of options for configuring the behaviour
 // of the IMDS mock
 type Options struct {
@@ -100,6 +102,8 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 
 	// see: https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies
 	r.SetTrustedProxies(nil)
+
+	// TODO: generate response JSON after applying all patches
 
 	r.GET("/latest/meta-data", func(c *gin.Context) {
 		c.String(http.StatusOK, keys(onDemandResponse, ""))
