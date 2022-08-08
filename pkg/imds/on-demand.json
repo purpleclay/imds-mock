@@ -1,0 +1,82 @@
+{
+  "ami-id": "ami-0e34bbddc66def5ac",
+  "ami-launch-index": "0",
+  "ami-manifest-path": "(unknown)",
+  "block-device-mapping": {
+    "ami": "/dev/xvda",
+    "ebs2": "sdb",
+    "root": "/dev/xvda"
+  },
+  "events": {
+    "maintenance": {
+      "history": [],
+      "scheduled": []
+    }
+  },
+  "hostname": "ip-10-0-1-100.us-east-1.compute.internal",
+  "iam": {
+    "info": {
+      "Code": "Success",
+      "LastUpdated": "2022-08-08T04:25:36Z",
+      "InstanceProfileArn": "arn:aws:iam::112233445566:instance-profile/ssm-access",
+      "InstanceProfileId": "AIPAYUKXDENX4ZNCZWHF6"
+    },
+    "security-credentials": {
+      "ssm-access": {
+        "Code": "Success",
+        "LastUpdated": "2022-08-08T04:26:10Z",
+        "Type": "AWS-HMAC",
+        "AccessKeyId": "ASIABCDEFGHIJKL",
+        "SecretAccessKey": "AAAAAA/abcdefghijnklmnopqrstuvwxyz",
+        "Token": "ABCDEFGHIJKLMNOP//////////testing12345/YfenfTTuhJuF3bWoRpkiko7x8NKUMRg==",
+        "Expiration": "2022-08-08T11:00:36Z"
+      }
+    }
+  },
+  "instance-action": "none",
+  "instance-id": "i-0decb1524582da041",
+  "instance-life-cycle": "on-demand",
+  "instance-type": "m4.xlarge",
+  "local-hostname": "ip-10-0-1-100.us-east-1.compute.internal",
+  "local-ipv4": "10.0.1.100",
+  "mac": "06:e5:43:29:8f:08",
+  "network": {
+    "interfaces": {
+      "macs": {
+        "06:e5:43:29:8f:08": {
+          "device-number": "0",
+          "interface-id": "eni-01180ca4a78168553",
+          "local-hostname": "ip-10-0-1-100.us-east-1.compute.internal",
+          "local-ipv4s": "10.0.1.100",
+          "mac": "06:e5:43:29:8f:08",
+          "owner-id": "112233445566",
+          "security-group-ids": "sg-083739656b4679c06",
+          "security-groups": "ssm-sg",
+          "subnet-id": "subnet-0d908159d6c3e2e54",
+          "subnet-ipv4-cidr-block": "10.0.1.0/24",
+          "vpc-id": "vpc-016d173db537793d1",
+          "vpc-ipv4-cidr-block": "10.0.0.0/16",
+          "vpc-ipv4-cidr-blocks": "10.0.0.0/16",
+          "vpc-ipv6-cidr-blocks": "2a05:d01c:f2d:3200::/56"
+        }
+      }
+    }
+  },
+  "placement": {
+    "availability-zone": "us-east-1a",
+    "availability-zone-id": "use1-az4",
+    "region": "us-east-1"
+  },
+  "profile": "default-hvm",
+  "public-keys": {
+    "0": {
+      "openssh-key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCCJB1NiqaDeAmFoLIN7ZKAmoyVEJLP0lY88d7olECKx6yK3bf4S87Yq+yTJ4bpieZBuY2wubNtkH4Qz2/UBVIf4FDCqkWyrrJxbz3keK/X9ZT2lKuc60hK+f6ly77YP+4j8E2E59X6oFrGEMKPdgZHBeljviYh/UU0VcRl9UDd/xXbLj/VIR8UDWrSOsYDfI4mTIun1OFoixW55WvTFHl+Zdm4juldsSnjyZbnTbGG085ixQXAfQm46Z7KBvRF71RRC34McI+a1zNRiULiLS/da4EhIUIX9Po7ZezW+wkls+S7sTketAuRj0H9MDMXTE+f8YfkNlrAsYv1le96RWIL test"
+    }
+  },
+  "reservation-id": "r-0c4dee716c0dbe3c9",
+  "security-groups": ["ssm-sg"],
+  "services": {
+    "domain": "amazonaws.com",
+    "partition": "aws"
+  }
+}

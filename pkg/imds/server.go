@@ -45,8 +45,8 @@ const (
 </html>`
 )
 
-//go:embed basic.json
-var basicResponse []byte
+//go:embed on-demand.json
+var onDemandResponse []byte
 
 // StartAndListen ...
 func StartAndListen() {
@@ -56,20 +56,20 @@ func StartAndListen() {
 	r.SetTrustedProxies(nil)
 
 	r.GET("/latest/meta-data", func(c *gin.Context) {
-		c.String(http.StatusOK, keys(basicResponse, ""))
+		c.String(http.StatusOK, keys(onDemandResponse, ""))
 	})
 
 	r.GET("/latest/meta-data/*category", func(c *gin.Context) {
 		categoryPath := c.Param("category")
 		if categoryPath == "/" {
 			// Exact same behaviour as /latest/meta-data
-			c.String(http.StatusOK, keys(basicResponse, ""))
+			c.String(http.StatusOK, keys(onDemandResponse, ""))
 			return
 		}
 
 		// Convert param into gjson path query
 		categoryPath = strings.ReplaceAll(categoryPath, "/", ".")[1:]
-		res := gjson.GetBytes(basicResponse, categoryPath)
+		res := gjson.GetBytes(onDemandResponse, categoryPath)
 
 		if !res.Exists() {
 			c.Writer.Header().Add("Content-Type", "text/html")
@@ -79,7 +79,7 @@ func StartAndListen() {
 
 		// If the path returns a JSON object, then return a set of keys
 		if res.IsObject() {
-			c.String(http.StatusOK, keys(basicResponse, categoryPath))
+			c.String(http.StatusOK, keys(onDemandResponse, categoryPath))
 		} else {
 			c.String(http.StatusOK, res.String())
 		}
