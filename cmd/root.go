@@ -31,13 +31,20 @@ import (
 )
 
 func Execute(out io.Writer) error {
+	opts := imds.DefaultOptions
+
 	rootCmd := &cobra.Command{
-		Use:   "imds-mock",
-		Short: "Mock the Amazon Instance Metadata Service (IMDS) for EC2",
-		Run: func(cmd *cobra.Command, args []string) {
-			imds.Serve(imds.DefaultOptions)
+		Use:          "imds-mock",
+		Short:        "Mock the Amazon Instance Metadata Service (IMDS) for EC2",
+		SilenceUsage: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			_, err := imds.ServeWith(opts)
+			return err
 		},
 	}
+
+	flags := rootCmd.Flags()
+	flags.BoolVar(&opts.Pretty, "pretty", false, "if instance categories should return pretty printed JSON")
 
 	rootCmd.AddCommand(newVersionCmd(out))
 	rootCmd.AddCommand(newManPagesCmd(out))

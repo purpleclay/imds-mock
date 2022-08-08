@@ -29,7 +29,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/tidwall/gjson"
-	"github.com/tidwall/pretty"
 )
 
 const (
@@ -49,14 +48,23 @@ const (
 //go:embed on-demand.json
 var onDemandResponse []byte
 
-// Options ...
+// Options provides a set of options for configuring the behaviour
+// of the IMDS mock
 type Options struct {
+	// AutoStart determines whether the IMDS mock immediately starts
+	// after initialisation
 	AutoStart bool
+
+	// Pretty controls if the JSON outputted by any instance category
+	// is pretty printed. By default all JSON will be compacted
+	Pretty bool
 }
 
-// DefaultOptions ...
+// DefaultOptions defines the default set of options that will be applied
+// to the IMDS mock upon startup
 var DefaultOptions = Options{
 	AutoStart: true,
+	Pretty:    false,
 }
 
 // Used as a hashset for quick lookups. Any matched path will just return its value
@@ -66,10 +74,23 @@ var reservedPaths = map[string]struct{}{
 	"iam.security-credentials": {},
 }
 
-// Serve configures the IMDS mock based on the incoming options to handle HTTP requests
-// in the exact same way as the IMDS service accessible from an EC2 instance
-func Serve(with Options) *gin.Engine {
+// Serve configures the IMDS mock using default options to handle HTTP requests
+// in the exact same way as the IMDS service accessible from any EC2 instance
+func Serve() (*gin.Engine, error) {
+	return ServeWith(DefaultOptions)
+}
+
+// ServeWith configures the IMDS mock based on the incoming options to handle HTTP requests
+// in the exact same way as the IMDS service accessible from any EC2 instance
+func ServeWith(opts Options) (*gin.Engine, error) {
 	r := gin.Default()
+
+	// Inject middleware based on the provided options
+	if opts.Pretty {
+		r.Use(PrettyJSON())
+	} else {
+		r.Use(CompactJSON())
+	}
 
 	// see: https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies
 	r.SetTrustedProxies(nil)
@@ -104,20 +125,16 @@ func Serve(with Options) *gin.Engine {
 		if res.IsObject() && notReservedPath(categoryPath) {
 			c.String(http.StatusOK, keys(onDemandResponse, categoryPath))
 		} else {
-			out := res.String()
-			if res.IsObject() {
-				out = string(pretty.Ugly([]byte(out)))
-			}
-
-			c.String(http.StatusOK, out)
+			c.String(http.StatusOK, res.String())
 		}
 	})
 
-	if with.AutoStart {
-		r.Run(":1338")
+	var err error
+	if opts.AutoStart {
+		err = r.Run(":1338")
 	}
 
-	return r
+	return r, err
 }
 
 func keys(json []byte, path string) string {

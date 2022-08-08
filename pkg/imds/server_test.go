@@ -37,6 +37,7 @@ import (
 
 var testOptions = imds.Options{
 	AutoStart: false,
+	Pretty:    false,
 }
 
 func TestMain(m *testing.M) {
@@ -46,7 +47,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestLatestMetadataKeys(t *testing.T) {
-	r := imds.Serve(testOptions)
+	r, _ := imds.ServeWith(testOptions)
 
 	tests := []struct {
 		name     string
@@ -124,7 +125,7 @@ security-credentials/`,
 }
 
 func TestCategoryValueIsString(t *testing.T) {
-	r := imds.Serve(testOptions)
+	r, _ := imds.ServeWith(testOptions)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/ami-id", http.NoBody)
@@ -137,7 +138,7 @@ func TestCategoryValueIsString(t *testing.T) {
 }
 
 func TestCategoryValueIsCompactJSON(t *testing.T) {
-	r := imds.Serve(testOptions)
+	r, _ := imds.ServeWith(testOptions)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/iam/info", http.NoBody)
@@ -155,7 +156,7 @@ func TestCategoryValueIsCompactJSON(t *testing.T) {
 }
 
 func TestCategoryPathDoesNotExist(t *testing.T) {
-	r := imds.Serve(testOptions)
+	r, _ := imds.ServeWith(testOptions)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/unknown", http.NoBody)
