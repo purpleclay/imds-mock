@@ -25,6 +25,7 @@ package imds
 import (
 	_ "embed"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -58,6 +59,10 @@ type Options struct {
 	// Pretty controls if the JSON outputted by any instance category
 	// is pretty printed. By default all JSON will be compacted
 	Pretty bool
+
+	// Port controls the port that is used by the IMDS mock. By default
+	// it will use port 1338
+	Port int
 }
 
 // DefaultOptions defines the default set of options that will be applied
@@ -65,6 +70,7 @@ type Options struct {
 var DefaultOptions = Options{
 	AutoStart: true,
 	Pretty:    false,
+	Port:      1338,
 }
 
 // Used as a hashset for quick lookups. Any matched path will just return its value
@@ -131,7 +137,7 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 
 	var err error
 	if opts.AutoStart {
-		err = r.Run(":1338")
+		err = r.Run(":" + strconv.Itoa(opts.Port))
 	}
 
 	return r, err
