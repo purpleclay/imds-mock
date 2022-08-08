@@ -48,7 +48,7 @@ const (
 //go:embed on-demand.json
 var onDemandResponse []byte
 
-// StartAndListen ...
+// StartAndListen launches the IMDS mock and listens for HTTP requests on the incoming port
 func StartAndListen() {
 	r := gin.Default()
 
@@ -68,7 +68,9 @@ func StartAndListen() {
 		}
 
 		// Convert param into gjson path query
+		categoryPath = strings.TrimSuffix(categoryPath, "/")
 		categoryPath = strings.ReplaceAll(categoryPath, "/", ".")[1:]
+
 		res := gjson.GetBytes(onDemandResponse, categoryPath)
 
 		if !res.Exists() {
@@ -85,20 +87,32 @@ func StartAndListen() {
 		}
 	})
 
-	r.Run()
+	r.Run(":1338")
 }
 
 func keys(json []byte, path string) string {
+	// Scan the JSON document, retrieving all of the top-level fields as keys
 	query := "@keys"
 	if path != "" {
 		query = path + ".@keys"
 	}
-
 	keys := gjson.GetBytes(json, query).Array()
 
 	categories := make([]string, 0, len(keys))
 	for _, key := range keys {
-		categories = append(categories, key.String())
+		k := key.String()
+
+		// IMDS service returns a category with a trailing slash, if it is a parent category
+		query = k
+		if path != "" {
+			query = path + "." + k
+		}
+
+		if gjson.GetBytes(json, query).IsObject() {
+			k = k + "/"
+		}
+
+		categories = append(categories, k)
 	}
 
 	return strings.Join(categories, "\n")
