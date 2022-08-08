@@ -37,6 +37,7 @@ import (
 
 var testOptions = imds.Options{
 	AutoStart: false,
+	Pretty:    false,
 }
 
 func TestMain(m *testing.M) {
@@ -46,7 +47,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestLatestMetadataKeys(t *testing.T) {
-	r := imds.Serve(testOptions)
+	r, _ := imds.ServeWith(testOptions)
 
 	tests := []struct {
 		name     string
@@ -124,7 +125,7 @@ security-credentials/`,
 }
 
 func TestCategoryValueIsString(t *testing.T) {
-	r := imds.Serve(testOptions)
+	r, _ := imds.ServeWith(testOptions)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/ami-id", http.NoBody)
@@ -137,7 +138,7 @@ func TestCategoryValueIsString(t *testing.T) {
 }
 
 func TestCategoryValueIsCompactJSON(t *testing.T) {
-	r := imds.Serve(testOptions)
+	r, _ := imds.ServeWith(testOptions)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/iam/info", http.NoBody)
@@ -154,8 +155,30 @@ func TestCategoryValueIsCompactJSON(t *testing.T) {
 }`))), w.Body.String())
 }
 
+func TestCategoryValueIsPrettyJSON(t *testing.T) {
+	opts := testOptions
+	opts.Pretty = true
+
+	r, _ := imds.ServeWith(opts)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/iam/info", http.NoBody)
+
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "text/plain", w.Result().Header["Content-Type"][0])
+	assert.Equal(t, `{
+  "Code": "Success",
+  "InstanceProfileArn": "arn:aws:iam::112233445566:instance-profile/ssm-access",
+  "InstanceProfileId": "AIPAYUKXDENX4ZNCZWHF6",
+  "LastUpdated": "2022-08-08T04:25:36Z"
+}
+`, w.Body.String())
+}
+
 func TestCategoryPathDoesNotExist(t *testing.T) {
-	r := imds.Serve(testOptions)
+	r, _ := imds.ServeWith(testOptions)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/unknown", http.NoBody)
