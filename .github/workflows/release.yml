@@ -95,7 +95,7 @@ jobs:
           readme-filepath: ./README.md
 
       - name: Trivy Vulnerability Scan
-        uses: aquasecurity/trivy-action@0.5.0
+        uses: aquasecurity/trivy-action@0.6.2
         with:
           image-ref: ghcr.io/purpleclay/imds-mock:latest
           format: template
