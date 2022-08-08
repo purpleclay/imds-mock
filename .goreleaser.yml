@@ -154,22 +154,22 @@ dockers:
       - "--platform=linux/arm64"
 
 docker_manifests:
-  - name_template: "purplelcay/imds-mock:{{ .Tag }}"
+  - name_template: "purpleclay/imds-mock:{{ .Tag }}"
     image_templates:
-      - "purplelcay/imds-mock:{{ .Tag }}-amd64"
-      - "purplelcay/imds-mock:{{ .Tag }}-arm64"
-  - name_template: "purplelcay/imds-mock:latest"
+      - "purpleclay/imds-mock:{{ .Tag }}-amd64"
+      - "purpleclay/imds-mock:{{ .Tag }}-arm64"
+  - name_template: "purpleclay/imds-mock:latest"
     image_templates:
-      - "purplelcay/imds-mock:{{ .Tag }}-amd64"
-      - "purplelcay/imds-mock:{{ .Tag }}-arm64"
-  - name_template: "ghcr.io/purplelcay/imds-mock:{{ .Tag }}"
+      - "purpleclay/imds-mock:{{ .Tag }}-amd64"
+      - "purpleclay/imds-mock:{{ .Tag }}-arm64"
+  - name_template: "ghcr.io/purpleclay/imds-mock:{{ .Tag }}"
     image_templates:
-      - "ghcr.io/purplelcay/imds-mock:{{ .Tag }}-amd64"
-      - "ghcr.io/purplelcay/imds-mock:{{ .Tag }}-arm64"
-  - name_template: "ghcr.io/purplelcay/imds-mock:latest"
+      - "ghcr.io/purpleclay/imds-mock:{{ .Tag }}-amd64"
+      - "ghcr.io/purpleclay/imds-mock:{{ .Tag }}-arm64"
+  - name_template: "ghcr.io/purpleclay/imds-mock:latest"
     image_templates:
-      - "ghcr.io/purplelcay/imds-mock:{{ .Tag }}-amd64"
-      - "ghcr.io/purplelcay/imds-mock:{{ .Tag }}-arm64"
+      - "ghcr.io/purpleclay/imds-mock:{{ .Tag }}-amd64"
+      - "ghcr.io/purpleclay/imds-mock:{{ .Tag }}-arm64"
 
 brews:
   - name: imds-mock
