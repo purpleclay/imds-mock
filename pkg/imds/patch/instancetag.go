@@ -20,37 +20,49 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package cmd
+package patch
 
 import (
-	ctx "context"
-	"io"
+	"bytes"
+	"text/template"
 
-	"github.com/purpleclay/imds-mock/pkg/imds"
-	"github.com/spf13/cobra"
+	jsonpatch "github.com/evanphx/json-patch/v5"
 )
 
-func Execute(out io.Writer) error {
-	opts := imds.DefaultOptions
+const instanceTagTemplate = `[
+	{
+		"op": "add", 
+		"path": "/tags", 
+		"value": {
+			"instance": { {{ jsonPairs .Tags }} }
+		}
+	}
+]`
 
-	rootCmd := &cobra.Command{
-		Use:          "imds-mock",
-		Short:        "Mock the Amazon Instance Metadata Service (IMDS) for EC2",
-		SilenceUsage: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			_, err := imds.ServeWith(opts)
-			return err
-		},
+var instanceTagPatch = template.Must(template.New("InstanceTagPatch").
+	Funcs(template.FuncMap{"jsonPairs": JSONPairs}).
+	Parse(instanceTagTemplate))
+
+// InstanceTag ...
+type InstanceTag struct {
+	Tags map[string]string
+}
+
+// Patch ...
+func (p InstanceTag) Patch(in []byte) ([]byte, error) {
+	if len(p.Tags) == 0 {
+		return in, nil
 	}
 
-	flags := rootCmd.Flags()
-	flags.BoolVar(&opts.InstanceTags, "include-instance-tags", imds.DefaultOptions.InstanceTags, "include access to instance tags associated with the instance")
-	flags.IntVar(&opts.Port, "port", imds.DefaultOptions.Port, "the port to be used at startup")
-	flags.BoolVar(&opts.Pretty, "pretty", imds.DefaultOptions.Pretty, "if instance categories should return pretty printed JSON")
+	var buf bytes.Buffer
+	instanceTagPatch.Execute(&buf, p)
 
-	rootCmd.AddCommand(newVersionCmd(out))
-	rootCmd.AddCommand(newManPagesCmd(out))
-	rootCmd.AddCommand(newCompletionCmd(out))
+	patch, _ := jsonpatch.DecodePatch(buf.Bytes())
 
-	return rootCmd.ExecuteContext(ctx.Background())
+	out, err := patch.Apply(in)
+	if err != nil {
+		return in, err
+	}
+
+	return out, nil
 }

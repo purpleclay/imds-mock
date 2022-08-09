@@ -3,6 +3,7 @@ module github.com/purpleclay/imds-mock
 go 1.18
 
 require (
+	github.com/evanphx/json-patch/v5 v5.6.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/muesli/mango-cobra v1.2.0
 	github.com/muesli/roff v0.1.0
@@ -28,6 +29,7 @@ require (
 	github.com/muesli/mango v0.1.0 // indirect
 	github.com/muesli/mango-pflag v0.1.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
+	github.com/pkg/errors v0.8.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tidwall/match v1.1.1 // indirect

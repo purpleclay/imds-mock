@@ -20,37 +20,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package cmd
+package patch
 
-import (
-	ctx "context"
-	"io"
-
-	"github.com/purpleclay/imds-mock/pkg/imds"
-	"github.com/spf13/cobra"
-)
-
-func Execute(out io.Writer) error {
-	opts := imds.DefaultOptions
-
-	rootCmd := &cobra.Command{
-		Use:          "imds-mock",
-		Short:        "Mock the Amazon Instance Metadata Service (IMDS) for EC2",
-		SilenceUsage: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			_, err := imds.ServeWith(opts)
-			return err
-		},
-	}
-
-	flags := rootCmd.Flags()
-	flags.BoolVar(&opts.InstanceTags, "include-instance-tags", imds.DefaultOptions.InstanceTags, "include access to instance tags associated with the instance")
-	flags.IntVar(&opts.Port, "port", imds.DefaultOptions.Port, "the port to be used at startup")
-	flags.BoolVar(&opts.Pretty, "pretty", imds.DefaultOptions.Pretty, "if instance categories should return pretty printed JSON")
-
-	rootCmd.AddCommand(newVersionCmd(out))
-	rootCmd.AddCommand(newManPagesCmd(out))
-	rootCmd.AddCommand(newCompletionCmd(out))
-
-	return rootCmd.ExecuteContext(ctx.Background())
+// JSONPatcher ...
+type JSONPatcher interface {
+	// Patch ...
+	Patch(in []byte) ([]byte, error)
 }
