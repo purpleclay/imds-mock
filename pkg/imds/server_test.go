@@ -36,8 +36,10 @@ import (
 )
 
 var testOptions = imds.Options{
-	AutoStart: false,
-	Pretty:    false,
+	AutoStart:           false,
+	ExcludeInstanceTags: imds.DefaultOptions.ExcludeInstanceTags,
+	InstanceTags:        imds.DefaultOptions.InstanceTags,
+	Pretty:              imds.DefaultOptions.Pretty,
 }
 
 func TestMain(m *testing.M) {
@@ -77,7 +79,8 @@ profile
 public-keys/
 reservation-id
 security-groups
-services/`,
+services/
+tags/`,
 		},
 		{
 			name: "ForRootTrailingSlash",
@@ -102,7 +105,8 @@ profile
 public-keys/
 reservation-id
 security-groups
-services/`,
+services/
+tags/`,
 		},
 		{
 			name: "ForSubCategory",
@@ -200,15 +204,59 @@ func TestCategoryPathDoesNotExist(t *testing.T) {
 </html>`, w.Body.String())
 }
 
-func TestIncludeInstanceTagsWithDefaultTags(t *testing.T) {
+func TestInstanceTags(t *testing.T) {
 	opts := testOptions
-	opts.InstanceTags = true
+	opts.InstanceTags = map[string]string{
+		"Name":        "test-instance",
+		"Environment": "dev",
+		"Product":     "imds-mock",
+	}
+
+	r, _ := imds.ServeWith(opts)
+
+	tests := []struct {
+		name     string
+		path     string
+		expected string
+	}{
+		{
+			name:     "GetName",
+			path:     "/latest/meta-data/tags/instance/Name",
+			expected: "test-instance",
+		},
+		{
+			name:     "GetEnvironment",
+			path:     "/latest/meta-data/tags/instance/Environment",
+			expected: "dev",
+		},
+		{
+			name:     "GetProduct",
+			path:     "/latest/meta-data/tags/instance/Product",
+			expected: "imds-mock",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest(http.MethodGet, tt.path, http.NoBody)
+
+			r.ServeHTTP(w, req)
+
+			require.Equal(t, http.StatusOK, w.Code)
+			require.Equal(t, tt.expected, w.Body.String())
+		})
+	}
+}
+
+func TestExcludeInstanceTags(t *testing.T) {
+	opts := testOptions
+	opts.ExcludeInstanceTags = true
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/tags/instance/Name", http.NoBody)
+	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/tags", http.NoBody)
 
 	r, _ := imds.ServeWith(opts)
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, "ec2-imds-mock", w.Body.String())
+	assert.Equal(t, http.StatusNotFound, w.Code)
 }
