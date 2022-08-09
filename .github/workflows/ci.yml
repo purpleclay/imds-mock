@@ -80,6 +80,7 @@ jobs:
         uses: golangci/golangci-lint-action@v3.2.0
         with:
           skip-go-installation: true
+          version: v1.47.2
 
       - name: misspell
         if: matrix.os == 'ubuntu-latest'

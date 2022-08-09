@@ -57,8 +57,13 @@ type Options struct {
 	// after initialisation
 	AutoStart bool
 
-	// InstanceTags ...
-	InstanceTags bool
+	// ExcludeInstanceTags controls if the IMDS mock excludes instance
+	// tags from its supported list of metadata categories
+	ExcludeInstanceTags bool
+
+	// InstanceTags contains a map of key value pairs that are to be
+	// exposed as instance tags through the IMDS mock
+	InstanceTags map[string]string
 
 	// Port controls the port that is used by the IMDS mock. By default
 	// it will use port 1338
@@ -72,10 +77,13 @@ type Options struct {
 // DefaultOptions defines the default set of options that will be applied
 // to the IMDS mock upon startup
 var DefaultOptions = Options{
-	AutoStart:    true,
-	InstanceTags: false,
-	Port:         1338,
-	Pretty:       false,
+	AutoStart:           true,
+	ExcludeInstanceTags: false,
+	InstanceTags: map[string]string{
+		"Name": "imds-mock-ec2",
+	},
+	Port:   1338,
+	Pretty: false,
 }
 
 // Used as a hashset for quick lookups. Any matched path will just return its value
@@ -191,17 +199,18 @@ func patchResponseJSON(in []byte, opts Options) ([]byte, error) {
 	// Build up a list of ordered patching strategies and apply
 	patches := make([]patch.JSONPatcher, 0)
 
-	if opts.InstanceTags {
+	if !opts.ExcludeInstanceTags {
 		patches = append(patches, patch.InstanceTag{
-			Tags: map[string]string{
-				"Name": "ec2-imds-mock",
-			},
+			Tags: opts.InstanceTags,
 		})
 	}
 
-	// TODO: how to handle errors
+	var err error
 	for _, p := range patches {
-		in, _ = p.Patch(in)
+		in, err = p.Patch(in)
+		if err != nil {
+			return in, err
+		}
 	}
 
 	return in, nil
