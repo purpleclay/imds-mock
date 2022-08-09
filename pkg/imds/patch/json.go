@@ -22,8 +22,8 @@ SOFTWARE.
 
 package patch
 
-// JSONPatcher ...
+// JSONPatcher defines an interface for patching a JSON document
 type JSONPatcher interface {
-	// Patch ...
+	// Patch a JSON document with any pre-configured JSON patch document
 	Patch(in []byte) ([]byte, error)
 }

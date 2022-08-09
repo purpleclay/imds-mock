@@ -43,12 +43,17 @@ var instanceTagPatch = template.Must(template.New("InstanceTagPatch").
 	Funcs(template.FuncMap{"jsonPairs": JSONPairs}).
 	Parse(instanceTagTemplate))
 
-// InstanceTag ...
+// InstanceTag is used to patch a JSON document and replicate the inclusion
+// of instance tags within the IMDS service. The same behaviour can be achieved
+// by enabling access to the EC2 tags through the CLI, see:
+// https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#allow-access-to-tags-in-IMDS
 type InstanceTag struct {
 	Tags map[string]string
 }
 
-// Patch ...
+// Patch the JSON document with any provided instance tags. The resulting JSON
+// document will conform to the IMDS specification and return EC2 tags within the
+// IMDS metadata
 func (p InstanceTag) Patch(in []byte) ([]byte, error) {
 	if len(p.Tags) == 0 {
 		return in, nil

@@ -27,7 +27,17 @@ import (
 	"strings"
 )
 
-// JSONPairs ...
+// JSONPairs transforms a map of key value pairs into a comma separated list
+// of JSON field pairs.
+//
+//	pairs := map[string]string{
+//		"FirstName": "joe",
+//		"LastName": "bloggs",
+//	}
+// 	out := JSONPairs(pairs)
+// 	fmt.Println(out)
+//
+//  // => "\"FirstName\": \"joe\", \"LastName\": \"bloggs\""
 func JSONPairs(in map[string]string) string {
 	pairs := make([]string, 0, len(in))
 	for k, v := range in {

@@ -199,9 +199,12 @@ func patchResponseJSON(in []byte, opts Options) ([]byte, error) {
 		})
 	}
 
-	// TODO: how to handle errors
+	var err error
 	for _, p := range patches {
-		in, _ = p.Patch(in)
+		in, err = p.Patch(in)
+		if err != nil {
+			return in, err
+		}
 	}
 
 	return in, nil
