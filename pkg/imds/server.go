@@ -50,8 +50,6 @@ const (
 //go:embed on-demand.json
 var onDemandResponse []byte
 
-// JSON base > patch with JSON template
-
 // Options provides a set of options for configuring the behaviour
 // of the IMDS mock
 type Options struct {

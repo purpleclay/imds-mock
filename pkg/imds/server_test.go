@@ -199,3 +199,16 @@ func TestCategoryPathDoesNotExist(t *testing.T) {
  </body>
 </html>`, w.Body.String())
 }
+
+func TestIncludeInstanceTagsWithDefaultTags(t *testing.T) {
+	opts := testOptions
+	opts.InstanceTags = true
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/tags/instance/Name", http.NoBody)
+
+	r, _ := imds.ServeWith(opts)
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, "ec2-imds-mock", w.Body.String())
+}
