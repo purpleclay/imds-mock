@@ -30,6 +30,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/purpleclay/imds-mock/pkg/imds"
+	"github.com/purpleclay/imds-mock/pkg/imds/token"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/tidwall/pretty"
@@ -259,4 +260,75 @@ func TestExcludeInstanceTags(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
+}
+
+func TestAPIToken(t *testing.T) {
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPut, "/latest/api/token", http.NoBody)
+	req.Header.Add(imds.V2TokenTTLHeader, "10")
+
+	r, _ := imds.ServeWith(testOptions)
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.NotEmpty(t, w.Body.String())
+}
+
+func TestAPIToken_MissingHeader(t *testing.T) {
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPut, "/latest/api/token", http.NoBody)
+
+	r, _ := imds.ServeWith(testOptions)
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, `<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+ <head>
+  <title>400 - Bad Request</title>
+ </head>
+ <body>
+  <h1>400 - Bad Request</h1>
+ </body>
+</html>`, w.Body.String())
+}
+
+func TestAPIToken_BadTTL(t *testing.T) {
+	tests := []struct {
+		name string
+		ttl  int
+	}{
+		{
+			name: "LessThan1",
+			ttl:  0,
+		},
+		{
+			name: "GreaterThanMax",
+			ttl:  token.MaxTTLInSeconds,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest(http.MethodPut, "/latest/api/token", http.NoBody)
+
+			r, _ := imds.ServeWith(testOptions)
+			r.ServeHTTP(w, req)
+
+			assert.Equal(t, http.StatusBadRequest, w.Code)
+			assert.Equal(t, `<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+ <head>
+  <title>400 - Bad Request</title>
+ </head>
+ <body>
+  <h1>400 - Bad Request</h1>
+ </body>
+</html>`, w.Body.String())
+		})
+	}
 }
