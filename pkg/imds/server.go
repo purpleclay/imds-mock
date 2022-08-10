@@ -29,6 +29,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/purpleclay/imds-mock/pkg/imds/middleware"
 	"github.com/purpleclay/imds-mock/pkg/imds/patch"
 	"github.com/tidwall/gjson"
 )
@@ -61,6 +62,11 @@ type Options struct {
 	// tags from its supported list of metadata categories
 	ExcludeInstanceTags bool
 
+	// IMDSv2 enables exclusive V2 support only. All requests must contain
+	// a valid metadata token, otherwise they will be rejected. By default
+	// the mock will run with both V1 and V2 support
+	IMDSv2 bool
+
 	// InstanceTags contains a map of key value pairs that are to be
 	// exposed as instance tags through the IMDS mock
 	InstanceTags map[string]string
@@ -79,6 +85,7 @@ type Options struct {
 var DefaultOptions = Options{
 	AutoStart:           true,
 	ExcludeInstanceTags: false,
+	IMDSv2:              false,
 	InstanceTags: map[string]string{
 		"Name": "imds-mock-ec2",
 	},
@@ -106,9 +113,9 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 
 	// Inject middleware based on the provided options
 	if opts.Pretty {
-		r.Use(PrettyJSON())
+		r.Use(middleware.PrettyJSON())
 	} else {
-		r.Use(CompactJSON())
+		r.Use(middleware.CompactJSON())
 	}
 
 	// see: https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies
@@ -154,6 +161,8 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 			c.String(http.StatusOK, res.String())
 		}
 	})
+
+	// TODO: PUT /latest/api/token -H X-aws-ec2-metadata-token-ttl-seconds: 1 ~ 21600 seconds
 
 	if opts.AutoStart {
 		err = r.Run(":" + strconv.Itoa(opts.Port))
