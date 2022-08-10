@@ -52,17 +52,43 @@ const (
 
 var instanceTagPatch = template.Must(template.New("TokenTemplate").Parse(tokenTemplate))
 
-func TestStrictV2_NoHeader(t *testing.T) {
-	r := v2Router(t)
+func TestStrictV2(t *testing.T) {
+	tests := []struct {
+		name  string
+		token string
+	}{
+		{
+			name:  "MissingToken",
+			token: "",
+		},
+		{
+			name:  "ExpiredToken",
+			token: expiredToken,
+		},
+		{
+			name:  "UnsupportedToken",
+			token: invalidSessionToken,
+		},
+		{
+			name:  "CannotDecodeToken",
+			token: notBase64Token,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := v2Router(t)
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/", http.NoBody)
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest(http.MethodGet, "/", http.NoBody)
+			if tt.token != "" {
+				req.Header.Add(middleware.V2TokenHeader, tt.token)
+			}
 
-	r.ServeHTTP(w, req)
+			r.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusUnauthorized, w.Code)
-	assert.Equal(t, "text/html", w.Result().Header["Content-Type"][0])
-	assert.Equal(t, `<?xml version="1.0" encoding="iso-8859-1"?>
+			assert.Equal(t, http.StatusUnauthorized, w.Code)
+			assert.Equal(t, "text/html", w.Result().Header["Content-Type"][0])
+			assert.Equal(t, `<?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -73,78 +99,8 @@ func TestStrictV2_NoHeader(t *testing.T) {
     <h1>401 - Unauthorized</h1>
   </body>
 </html>`, w.Body.String())
-}
-
-func TestStrictV2_ExpiredToken(t *testing.T) {
-	r := v2Router(t)
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/", http.NoBody)
-	req.Header.Add(middleware.V2TokenHeader, expiredToken)
-
-	r.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusUnauthorized, w.Code)
-	assert.Equal(t, "text/html", w.Result().Header["Content-Type"][0])
-	assert.Equal(t, `<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-  <head>
-    <title>401 - Unauthorized</title>
-  </head>
-  <body>
-    <h1>401 - Unauthorized</h1>
-  </body>
-</html>`, w.Body.String())
-}
-
-func TestStrictV2_InvalidToken(t *testing.T) {
-	r := v2Router(t)
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/", http.NoBody)
-	req.Header.Add(middleware.V2TokenHeader, invalidSessionToken)
-
-	r.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusUnauthorized, w.Code)
-	assert.Equal(t, "text/html", w.Result().Header["Content-Type"][0])
-	assert.Equal(t, `<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-  <head>
-    <title>401 - Unauthorized</title>
-  </head>
-  <body>
-    <h1>401 - Unauthorized</h1>
-  </body>
-</html>`, w.Body.String())
-}
-
-func TestStrictV2_CannotDecodeToken(t *testing.T) {
-	r := v2Router(t)
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/", http.NoBody)
-	req.Header.Add(middleware.V2TokenHeader, notBase64Token)
-
-	r.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusUnauthorized, w.Code)
-	assert.Equal(t, "text/html", w.Result().Header["Content-Type"][0])
-	assert.Equal(t, `<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-  <head>
-    <title>401 - Unauthorized</title>
-  </head>
-  <body>
-    <h1>401 - Unauthorized</h1>
-  </body>
-</html>`, w.Body.String())
+		})
+	}
 }
 
 func TestStrictV2_ValidToken(t *testing.T) {

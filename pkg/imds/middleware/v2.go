@@ -49,7 +49,12 @@ const (
 	V2TokenHeader = "X-aws-ec2-metadata-token"
 )
 
-// StrictV2 ...
+// StrictV2 provides middleware that explicitly enables IMDSv2 authorisation
+// through the use of session tokens. Any requests without a valid session
+// token are immediately rejected. A session token is presented to this middleware
+// through the use of an HTTP header:
+//
+//	X-aws-ec2-metadata-token: TOKEN
 func StrictV2() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tkn := c.Request.Header.Get(V2TokenHeader)
