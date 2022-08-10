@@ -27,6 +27,22 @@ import (
 	"github.com/tidwall/pretty"
 )
 
+// JSONFormatter defines an interface for formatting JSON text
+type JSONFormatter interface {
+	Format(in []byte) []byte
+}
+
+// A crude wrapper around a gin.ResponseWriter for supporting the custom
+// injection of a JSON formatter
+type jsonRewriter struct {
+	gin.ResponseWriter
+	Formatter JSONFormatter
+}
+
+func (w *jsonRewriter) Write(data []byte) (n int, err error) {
+	return w.ResponseWriter.Write(w.Formatter.Format(data))
+}
+
 type compactJSONFormatter struct{}
 
 func (f compactJSONFormatter) Format(in []byte) []byte {
@@ -39,10 +55,6 @@ func (f compactJSONFormatter) Format(in []byte) []byte {
 	}
 
 	return pretty.Ugly(in)
-}
-
-func (f compactJSONFormatter) FormatString(in string) string {
-	return string(f.Format([]byte(in)))
 }
 
 // CompactJSON provides middleware capable of rewriting all JSON responses
@@ -77,10 +89,6 @@ func (f prettyJSONFormatter) Format(in []byte) []byte {
 	}
 
 	return pretty.PrettyOptions(in, prettyOptions)
-}
-
-func (f prettyJSONFormatter) FormatString(in string) string {
-	return string(f.Format([]byte(in)))
 }
 
 // PrettyJSON provides middleware capable of rewriting all JSON responses

@@ -141,11 +141,11 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 		return nil, err
 	}
 
-	r.GET("/latest/meta-data", func(c *gin.Context) {
+	r.GET("/latest/meta-data", middleware.Cache(), func(c *gin.Context) {
 		c.String(http.StatusOK, keys(mockResponse, ""))
 	})
 
-	r.GET("/latest/meta-data/*category", func(c *gin.Context) {
+	r.GET("/latest/meta-data/*category", middleware.Cache(), func(c *gin.Context) {
 		categoryPath := c.Param("category")
 		if categoryPath == "/" {
 			// Exact same behaviour as /latest/meta-data
