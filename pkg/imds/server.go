@@ -24,6 +24,8 @@ package imds
 
 import (
 	_ "embed"
+	"encoding/base64"
+	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
@@ -31,8 +33,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/purpleclay/imds-mock/pkg/imds/middleware"
 	"github.com/purpleclay/imds-mock/pkg/imds/patch"
+	"github.com/purpleclay/imds-mock/pkg/imds/token"
 	"github.com/tidwall/gjson"
 )
+
+// TODO: responses
 
 const (
 	notFound = `<?xml version="1.0" encoding="iso-8859-1"?>
@@ -46,6 +51,22 @@ const (
   <h1>404 - Not Found</h1>
  </body>
 </html>`
+
+	badRequest = `<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+ <head>
+  <title>400 - Bad Request</title>
+ </head>
+ <body>
+  <h1>400 - Bad Request</h1>
+ </body>
+</html>`
+
+	// V2TokenTTLHeader defines the HTTP header used by the IMDS service for
+	// generating a new IMDS session token
+	V2TokenTTLHeader = "X-aws-ec2-metadata-token-ttl-seconds"
 )
 
 //go:embed on-demand.json
@@ -122,6 +143,8 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 		return nil, err
 	}
 
+	// TODO: move logic into handlers file
+
 	r.GET("/latest/meta-data", func(c *gin.Context) {
 		c.String(http.StatusOK, keys(mockResponse, ""))
 	})
@@ -156,7 +179,21 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 		}
 	})
 
-	// TODO: PUT /latest/api/token -H X-aws-ec2-metadata-token-ttl-seconds: 1 ~ 21600 seconds
+	r.PUT("/latest/api/token", func(c *gin.Context) {
+		ttl, err := strconv.Atoi(c.Request.Header.Get(V2TokenTTLHeader))
+
+		if err == nil && (ttl > 0 && ttl <= 21600) {
+			tkn := token.NewSessionToken(ttl)
+			out, _ := json.Marshal(&tkn)
+
+			c.Writer.Header().Add("Content-Type", "text/plain")
+			c.String(http.StatusOK, base64.StdEncoding.EncodeToString(out))
+			return
+		}
+
+		c.Writer.Header().Add("Content-Type", "text/html")
+		c.String(http.StatusBadRequest, badRequest)
+	})
 
 	if opts.AutoStart {
 		err = r.Run(":" + strconv.Itoa(opts.Port))

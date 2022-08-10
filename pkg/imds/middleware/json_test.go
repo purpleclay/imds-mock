@@ -20,28 +20,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package token
+package middleware_test
 
-import "time"
-
-// TODO: rename as package changed
-
-// token.V2
-
-// SessionToken ...
-type SessionToken struct {
-	// Expire ...
-	Expire time.Time `json:"expire"`
-}
-
-// NewSessionToken ...
-func NewSessionToken(ttl int) SessionToken {
-	return SessionToken{
-		Expire: time.Now().Add(time.Duration(ttl) * time.Second),
-	}
-}
-
-// Expired ...
-func (t SessionToken) Expired() bool {
-	return time.Now().After(t.Expire)
-}
+// TODO: write test for pretty and compact JSON
