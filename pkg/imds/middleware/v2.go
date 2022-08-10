@@ -77,7 +77,7 @@ func validV2Token(tkn string) bool {
 		return false
 	}
 
-	var st token.SessionToken
+	var st token.V2
 	if err := json.Unmarshal(decoded, &st); err != nil {
 		return false
 	}

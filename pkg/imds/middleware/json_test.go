@@ -22,4 +22,104 @@ SOFTWARE.
 
 package middleware_test
 
-// TODO: write test for pretty and compact JSON
+import (
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/purpleclay/imds-mock/pkg/imds/middleware"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestCompactJSON(t *testing.T) {
+	r := gin.Default()
+	r.GET("/", middleware.CompactJSON(), func(c *gin.Context) {
+		c.String(http.StatusOK, `{
+	"a": "1",
+	"b": "2"
+}`)
+	})
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/", http.NoBody)
+
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, `{"a":"1","b":"2"}`, w.Body.String())
+}
+
+func TestCompactJSON_IgnoreNonJSON(t *testing.T) {
+	r := gin.Default()
+	r.GET("/", middleware.CompactJSON(), func(c *gin.Context) {
+		c.String(http.StatusOK, `no json`)
+	})
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/", http.NoBody)
+
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, "no json", w.Body.String())
+}
+
+func TestCompactJSON_IgnoreEmptyString(t *testing.T) {
+	r := gin.Default()
+	r.GET("/", middleware.CompactJSON(), func(c *gin.Context) {
+		c.String(http.StatusOK, "")
+	})
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/", http.NoBody)
+
+	r.ServeHTTP(w, req)
+
+	assert.Empty(t, w.Body.String())
+}
+
+func TestPrettyJSON(t *testing.T) {
+	r := gin.Default()
+	r.GET("/", middleware.PrettyJSON(), func(c *gin.Context) {
+		c.String(http.StatusOK, `{"c":"3","b":"2","a":"1"}`)
+	})
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/", http.NoBody)
+
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, `{
+  "a": "1",
+  "b": "2",
+  "c": "3"
+}
+`, w.Body.String())
+}
+
+func TestPrettyJSON_IgnoreNonJSON(t *testing.T) {
+	r := gin.Default()
+	r.GET("/", middleware.PrettyJSON(), func(c *gin.Context) {
+		c.String(http.StatusOK, "not json")
+	})
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/", http.NoBody)
+
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, "not json", w.Body.String())
+}
+
+func TestPrettyJSON_IgnoreEmptyString(t *testing.T) {
+	r := gin.Default()
+	r.GET("/", middleware.PrettyJSON(), func(c *gin.Context) {
+		c.String(http.StatusOK, "")
+	})
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/", http.NoBody)
+
+	r.ServeHTTP(w, req)
+
+	assert.Empty(t, w.Body.String())
+}

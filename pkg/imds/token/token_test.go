@@ -31,8 +31,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewSessionToken(t *testing.T) {
-	token := token.NewSessionToken(10)
+func TestNewV2(t *testing.T) {
+	token := token.NewV2(10)
 
 	assert.WithinDuration(t, token.Expire, time.Now(), 10*time.Second)
 }
@@ -56,7 +56,7 @@ func TestExpired(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			token := token.SessionToken{
+			token := token.V2{
 				Expire: time.Now().Add(time.Duration(tt.ttl) * time.Second),
 			}
 

@@ -37,8 +37,6 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-// TODO: responses
-
 const (
 	notFound = `<?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -143,8 +141,6 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 		return nil, err
 	}
 
-	// TODO: move logic into handlers file
-
 	r.GET("/latest/meta-data", func(c *gin.Context) {
 		c.String(http.StatusOK, keys(mockResponse, ""))
 	})
@@ -182,8 +178,8 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 	r.PUT("/latest/api/token", func(c *gin.Context) {
 		ttl, err := strconv.Atoi(c.Request.Header.Get(V2TokenTTLHeader))
 
-		if err == nil && (ttl > 0 && ttl <= 21600) {
-			tkn := token.NewSessionToken(ttl)
+		if err == nil && (ttl > 0 && ttl <= token.MaxTTLInSeconds) {
+			tkn := token.NewV2(ttl)
 			out, _ := json.Marshal(&tkn)
 
 			c.Writer.Header().Add("Content-Type", "text/plain")

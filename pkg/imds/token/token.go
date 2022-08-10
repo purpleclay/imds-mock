@@ -24,24 +24,25 @@ package token
 
 import "time"
 
-// TODO: rename as package changed
+// MaxTTLInSeconds defines the maximum duration of a session token
+const MaxTTLInSeconds = 21600
 
-// token.V2
-
-// SessionToken ...
-type SessionToken struct {
-	// Expire ...
+// V2 defines a session orientated token that embeds a TTL for expiration checks
+type V2 struct {
+	// Expire contains a time and date of when this token will expire,
+	// resulting in all IMDSv2 bases requests to be rejected
 	Expire time.Time `json:"expire"`
 }
 
-// NewSessionToken ...
-func NewSessionToken(ttl int) SessionToken {
-	return SessionToken{
-		Expire: time.Now().Add(time.Duration(ttl) * time.Second),
+// NewV2 generates a new V2 session token from the provided TTL in seconds
+func NewV2(seconds int) V2 {
+	return V2{
+		Expire: time.Now().Add(time.Duration(seconds) * time.Second),
 	}
 }
 
-// Expired ...
-func (t SessionToken) Expired() bool {
+// Expired returns true of the current ttl has elapsed and the token
+// is therefore deemed as expired
+func (t V2) Expired() bool {
 	return time.Now().After(t.Expire)
 }
