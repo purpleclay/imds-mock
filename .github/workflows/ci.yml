@@ -95,6 +95,8 @@ jobs:
             ./Taskfile.yaml
             ./.github/workflows/**
             ./CODE_OF_CONDUCT.md
+            ./pkg/imds/middleware/v2.go
+            ./pkg/imds/middleware/v2_test.go
 
       - name: Code Coverage
         if: matrix.os == 'ubuntu-latest'

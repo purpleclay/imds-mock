@@ -45,6 +45,7 @@ func Execute(out io.Writer) error {
 
 	flags := rootCmd.Flags()
 	flags.BoolVar(&opts.ExcludeInstanceTags, "exclude-instance-tags", imds.DefaultOptions.ExcludeInstanceTags, "exclude access to instance tags associated with the instance")
+	flags.BoolVar(&opts.IMDSv2, "imdsv2", imds.DefaultOptions.IMDSv2, "enforce IMDSv2 requiring all requests to contain a valid metadata token")
 	flags.StringToStringVar(&opts.InstanceTags, "instance-tags", imds.DefaultOptions.InstanceTags, "a list of instance tags (key pairs) to expose as metadata")
 	flags.IntVar(&opts.Port, "port", imds.DefaultOptions.Port, "the port to be used at startup")
 	flags.BoolVar(&opts.Pretty, "pretty", imds.DefaultOptions.Pretty, "if instance categories should return pretty printed JSON")

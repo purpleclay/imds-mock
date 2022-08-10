@@ -24,12 +24,16 @@ package imds
 
 import (
 	_ "embed"
+	"encoding/base64"
+	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/purpleclay/imds-mock/pkg/imds/middleware"
 	"github.com/purpleclay/imds-mock/pkg/imds/patch"
+	"github.com/purpleclay/imds-mock/pkg/imds/token"
 	"github.com/tidwall/gjson"
 )
 
@@ -45,6 +49,22 @@ const (
   <h1>404 - Not Found</h1>
  </body>
 </html>`
+
+	badRequest = `<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+ <head>
+  <title>400 - Bad Request</title>
+ </head>
+ <body>
+  <h1>400 - Bad Request</h1>
+ </body>
+</html>`
+
+	// V2TokenTTLHeader defines the HTTP header used by the IMDS service for
+	// generating a new IMDS session token
+	V2TokenTTLHeader = "X-aws-ec2-metadata-token-ttl-seconds"
 )
 
 //go:embed on-demand.json
@@ -60,6 +80,11 @@ type Options struct {
 	// ExcludeInstanceTags controls if the IMDS mock excludes instance
 	// tags from its supported list of metadata categories
 	ExcludeInstanceTags bool
+
+	// IMDSv2 enables exclusive V2 support only. All requests must contain
+	// a valid metadata token, otherwise they will be rejected. By default
+	// the mock will run with both V1 and V2 support
+	IMDSv2 bool
 
 	// InstanceTags contains a map of key value pairs that are to be
 	// exposed as instance tags through the IMDS mock
@@ -79,6 +104,7 @@ type Options struct {
 var DefaultOptions = Options{
 	AutoStart:           true,
 	ExcludeInstanceTags: false,
+	IMDSv2:              false,
 	InstanceTags: map[string]string{
 		"Name": "imds-mock-ec2",
 	},
@@ -103,13 +129,7 @@ func Serve() (*gin.Engine, error) {
 // in the exact same way as the IMDS service accessible from any EC2 instance
 func ServeWith(opts Options) (*gin.Engine, error) {
 	r := gin.Default()
-
-	// Inject middleware based on the provided options
-	if opts.Pretty {
-		r.Use(PrettyJSON())
-	} else {
-		r.Use(CompactJSON())
-	}
+	injectMiddleware(r, opts)
 
 	// see: https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies
 	r.SetTrustedProxies(nil)
@@ -155,11 +175,41 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 		}
 	})
 
+	r.PUT("/latest/api/token", func(c *gin.Context) {
+		ttl, err := strconv.Atoi(c.Request.Header.Get(V2TokenTTLHeader))
+
+		if err == nil && (ttl > 0 && ttl <= token.MaxTTLInSeconds) {
+			tkn := token.NewV2(ttl)
+			out, _ := json.Marshal(&tkn)
+
+			c.Writer.Header().Add("Content-Type", "text/plain")
+			c.String(http.StatusOK, base64.StdEncoding.EncodeToString(out))
+			return
+		}
+
+		c.Writer.Header().Add("Content-Type", "text/html")
+		c.String(http.StatusBadRequest, badRequest)
+	})
+
 	if opts.AutoStart {
 		err = r.Run(":" + strconv.Itoa(opts.Port))
 	}
 
 	return r, err
+}
+
+func injectMiddleware(r *gin.Engine, opts Options) {
+	if opts.IMDSv2 {
+		r.Use(middleware.StrictV2())
+	} else {
+		r.Use(middleware.V1OptionalV2())
+	}
+
+	if opts.Pretty {
+		r.Use(middleware.PrettyJSON())
+	} else {
+		r.Use(middleware.CompactJSON())
+	}
 }
 
 func keys(json []byte, path string) string {
