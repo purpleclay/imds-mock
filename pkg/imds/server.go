@@ -110,13 +110,7 @@ func Serve() (*gin.Engine, error) {
 // in the exact same way as the IMDS service accessible from any EC2 instance
 func ServeWith(opts Options) (*gin.Engine, error) {
 	r := gin.Default()
-
-	// Inject middleware based on the provided options
-	if opts.Pretty {
-		r.Use(middleware.PrettyJSON())
-	} else {
-		r.Use(middleware.CompactJSON())
-	}
+	injectMiddleware(r, opts)
 
 	// see: https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies
 	r.SetTrustedProxies(nil)
@@ -169,6 +163,20 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 	}
 
 	return r, err
+}
+
+func injectMiddleware(r *gin.Engine, opts Options) {
+	if opts.IMDSv2 {
+		r.Use(middleware.StrictV2())
+	} else {
+		r.Use(middleware.V1OptionalV2())
+	}
+
+	if opts.Pretty {
+		r.Use(middleware.PrettyJSON())
+	} else {
+		r.Use(middleware.CompactJSON())
+	}
 }
 
 func keys(json []byte, path string) string {

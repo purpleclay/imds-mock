@@ -58,31 +58,31 @@ const (
 func StrictV2() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tkn := c.Request.Header.Get(V2TokenHeader)
-		if tkn == "" {
+		if validV2Token(tkn) {
+			// Safe to proceed
+			c.Next()
+		} else {
 			abortUnauthorised(c)
-			return
 		}
-
-		decoded, err := base64.StdEncoding.DecodeString(tkn)
-		if err != nil {
-			abortUnauthorised(c)
-			return
-		}
-
-		var st token.SessionToken
-		if err := json.Unmarshal(decoded, &st); err != nil {
-			abortUnauthorised(c)
-			return
-		}
-
-		if st.Expired() {
-			abortUnauthorised(c)
-			return
-		}
-
-		// Safe to proceed
-		c.Next()
 	}
+}
+
+func validV2Token(tkn string) bool {
+	if tkn == "" {
+		return false
+	}
+
+	decoded, err := base64.StdEncoding.DecodeString(tkn)
+	if err != nil {
+		return false
+	}
+
+	var st token.SessionToken
+	if err := json.Unmarshal(decoded, &st); err != nil {
+		return false
+	}
+
+	return !st.Expired()
 }
 
 func abortUnauthorised(c *gin.Context) {
