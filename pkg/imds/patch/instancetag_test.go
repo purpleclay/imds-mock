@@ -31,7 +31,7 @@ import (
 	"github.com/tidwall/pretty"
 )
 
-func TestPatch(t *testing.T) {
+func TestInstanceTagPatch(t *testing.T) {
 	tagPatch := patch.InstanceTag{
 		Tags: map[string]string{
 			"Name":        "testing",
@@ -57,7 +57,7 @@ func TestPatch(t *testing.T) {
 `, string(pretty.PrettyOptions(out, opts)))
 }
 
-func TestPatchNoTags(t *testing.T) {
+func TestInstanceTagPatch_NoTags(t *testing.T) {
 	tagPatch := patch.InstanceTag{
 		Tags: map[string]string{},
 	}
@@ -68,7 +68,7 @@ func TestPatchNoTags(t *testing.T) {
 	assert.Equal(t, `{"testing":"123"}`, string(out))
 }
 
-func TestPathInvalidInputJSON(t *testing.T) {
+func TestInstanceTagPatch_InvalidInputJSON(t *testing.T) {
 	tagPatch := patch.InstanceTag{
 		Tags: map[string]string{
 			"Name":        "testing",
