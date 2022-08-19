@@ -9,7 +9,7 @@ require (
 	github.com/muesli/roff v0.1.0
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.8.0
-	github.com/tidwall/gjson v1.14.2
+	github.com/tidwall/gjson v1.14.3
 	github.com/tidwall/pretty v1.2.0
 )
 
