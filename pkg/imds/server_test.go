@@ -41,6 +41,7 @@ var testOptions = imds.Options{
 	ExcludeInstanceTags: imds.DefaultOptions.ExcludeInstanceTags,
 	InstanceTags:        imds.DefaultOptions.InstanceTags,
 	Pretty:              imds.DefaultOptions.Pretty,
+	Spot:                imds.DefaultOptions.Spot,
 }
 
 func TestMain(m *testing.M) {
@@ -331,4 +332,27 @@ func TestAPIToken_BadTTL(t *testing.T) {
 </html>`, w.Body.String())
 		})
 	}
+}
+
+func TestNoSpotCategoriesByDefault(t *testing.T) {
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/spot/instance-action", http.NoBody)
+
+	r, _ := imds.ServeWith(testOptions)
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusNotFound, w.Code)
+}
+
+func TestSpotSimulation(t *testing.T) {
+	opts := testOptions
+	opts.Spot = true
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/spot/instance-action", http.NoBody)
+
+	r, _ := imds.ServeWith(opts)
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
 }

@@ -97,6 +97,11 @@ type Options struct {
 	// Pretty controls if the JSON outputted by any instance category
 	// is pretty printed. By default all JSON will be compacted
 	Pretty bool
+
+	// Spot enables the simulation of a spot instance and interruption notice
+	// through the IMDS mock. By default this will set to false and an on-demand
+	// instance will be simulated
+	Spot bool
 }
 
 // DefaultOptions defines the default set of options that will be applied
@@ -110,13 +115,16 @@ var DefaultOptions = Options{
 	},
 	Port:   1338,
 	Pretty: false,
+	Spot:   false,
 }
 
 // Used as a hashset for quick lookups. Any matched path will just return its value
 // and not be used to perform a key lookup
 var reservedPaths = map[string]struct{}{
-	"iam.info":                 {},
-	"iam.security-credentials": {},
+	"iam.info":                         {},
+	"iam.security-credentials":         {},
+	"spot.instance-action":             {},
+	"events.recommendations.rebalance": {},
 }
 
 // Serve configures the IMDS mock using default options to handle HTTP requests
@@ -252,6 +260,12 @@ func patchResponseJSON(in []byte, opts Options) ([]byte, error) {
 	if !opts.ExcludeInstanceTags {
 		patches = append(patches, patch.InstanceTag{
 			Tags: opts.InstanceTags,
+		})
+	}
+
+	if opts.Spot {
+		patches = append(patches, patch.Spot{
+			InstanceAction: patch.TerminateSpotInstanceAction,
 		})
 	}
 

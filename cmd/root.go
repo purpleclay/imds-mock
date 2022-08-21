@@ -49,6 +49,7 @@ func Execute(out io.Writer) error {
 	flags.StringToStringVar(&opts.InstanceTags, "instance-tags", imds.DefaultOptions.InstanceTags, "a list of instance tags (key pairs) to expose as metadata")
 	flags.IntVar(&opts.Port, "port", imds.DefaultOptions.Port, "the port to be used at startup")
 	flags.BoolVar(&opts.Pretty, "pretty", imds.DefaultOptions.Pretty, "if instance categories should return pretty printed JSON")
+	flags.BoolVar(&opts.Spot, "spot", imds.DefaultOptions.Spot, "enable simulation of a spot instance and interruption notice")
 
 	rootCmd.AddCommand(newVersionCmd(out))
 	rootCmd.AddCommand(newManPagesCmd(out))

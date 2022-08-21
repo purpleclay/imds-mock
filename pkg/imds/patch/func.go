@@ -34,10 +34,10 @@ import (
 //		"FirstName": "joe",
 //		"LastName": "bloggs",
 //	}
-// 	out := JSONPairs(pairs)
-// 	fmt.Println(out)
+//	out := JSONPairs(pairs)
+//	fmt.Println(out)
 //
-//  // => "\"FirstName\": \"joe\", \"LastName\": \"bloggs\""
+//	"\"FirstName\": \"joe\", \"LastName\": \"bloggs\""
 func JSONPairs(in map[string]string) string {
 	pairs := make([]string, 0, len(in))
 	for k, v := range in {
