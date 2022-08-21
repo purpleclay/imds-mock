@@ -121,8 +121,10 @@ var DefaultOptions = Options{
 // Used as a hashset for quick lookups. Any matched path will just return its value
 // and not be used to perform a key lookup
 var reservedPaths = map[string]struct{}{
-	"iam.info":                 {},
-	"iam.security-credentials": {},
+	"iam.info":                         {},
+	"iam.security-credentials":         {},
+	"spot.instance-action":             {},
+	"events.recommendations.rebalance": {},
 }
 
 // Serve configures the IMDS mock using default options to handle HTTP requests
