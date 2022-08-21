@@ -43,63 +43,68 @@ type spotPatchJSON struct {
 
 		TerminationTime *time.Time `json:"termination-time"`
 	} `json:"spot"`
+	Events struct {
+		Recommendations struct {
+			Rebalance struct {
+				NoticeTime time.Time `json:"noticeTime"`
+			} `json:"rebalance"`
+		} `json:"recommendations"`
+	} `json:"events"`
 }
 
 func TestSpotPatch_TerminateAction(t *testing.T) {
-	spotPatch := patch.Spot{
-		InstanceAction: patch.TerminateSpotInstanceAction,
+	tests := []struct {
+		name   string
+		action patch.SpotInstanceAction
+	}{
+		{
+			name:   "TerminateAction",
+			action: patch.TerminateSpotInstanceAction,
+		},
+		{
+			name:   "StopAction",
+			action: patch.StopSpotInstanceAction,
+		},
+		{
+			name:   "HibernateAction",
+			action: patch.HibernateSpotInstanceAction,
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			spotPatch := patch.Spot{
+				InstanceAction: tt.action,
+			}
 
-	out, err := spotPatch.Patch([]byte(`{"instance-life-cycle":"on-demand"}`))
-	require.NoError(t, err)
+			out, err := spotPatch.Patch([]byte(`{"instance-life-cycle":"on-demand"}`))
+			require.NoError(t, err)
 
-	var spotJSON spotPatchJSON
-	json.Unmarshal(out, &spotJSON)
+			var spotJSON spotPatchJSON
+			json.Unmarshal(out, &spotJSON)
 
-	now := time.Now().UTC()
+			now := time.Now().UTC()
 
-	assert.Equal(t, "spot", spotJSON.InstanceLifeCycle)
-	assert.Equal(t, "terminate", spotJSON.Spot.InstanceAction.Action)
-	assert.WithinDuration(t, now, spotJSON.Spot.InstanceAction.ActionTime, 1*time.Second)
+			assert.Equal(t, "spot", spotJSON.InstanceLifeCycle)
+			assert.Equal(t, string(tt.action), spotJSON.Spot.InstanceAction.Action)
+			assert.WithinDuration(t, now, spotJSON.Spot.InstanceAction.ActionTime, 1*time.Second)
 
-	require.NotNil(t, spotJSON.Spot.TerminationTime)
-	assert.WithinDuration(t, now, *spotJSON.Spot.TerminationTime, 1*time.Second)
+			if tt.action == patch.TerminateSpotInstanceAction {
+				require.NotNil(t, spotJSON.Spot.TerminationTime)
+				assert.WithinDuration(t, now, *spotJSON.Spot.TerminationTime, 1*time.Second)
+			} else {
+				require.Nil(t, spotJSON.Spot.TerminationTime)
+			}
+
+			assert.WithinDuration(t, now, spotJSON.Events.Recommendations.Rebalance.NoticeTime, 1*time.Second)
+		})
+	}
 }
 
-func TestSpotPatch_StopAction(t *testing.T) {
-	spotPatch := patch.Spot{
-		InstanceAction: patch.StopSpotInstanceAction,
-	}
-
-	out, err := spotPatch.Patch([]byte(`{"instance-life-cycle":"on-demand"}`))
-	require.NoError(t, err)
-
-	var spotJSON spotPatchJSON
-	json.Unmarshal(out, &spotJSON)
-
-	now := time.Now().UTC()
-
-	assert.Equal(t, "spot", spotJSON.InstanceLifeCycle)
-	assert.Equal(t, "stop", spotJSON.Spot.InstanceAction.Action)
-	assert.WithinDuration(t, now, spotJSON.Spot.InstanceAction.ActionTime, 1*time.Second)
-	assert.Nil(t, spotJSON.Spot.TerminationTime)
-}
-
-func TestSpotPatch_HibernateAction(t *testing.T) {
+func TestSpotPatch_InvalidInputJSON(t *testing.T) {
 	spotPatch := patch.Spot{
 		InstanceAction: patch.HibernateSpotInstanceAction,
 	}
 
-	out, err := spotPatch.Patch([]byte(`{"instance-life-cycle":"on-demand"}`))
-	require.NoError(t, err)
-
-	var spotJSON spotPatchJSON
-	json.Unmarshal(out, &spotJSON)
-
-	now := time.Now().UTC()
-
-	assert.Equal(t, "spot", spotJSON.InstanceLifeCycle)
-	assert.Equal(t, "hibernate", spotJSON.Spot.InstanceAction.Action)
-	assert.WithinDuration(t, now, spotJSON.Spot.InstanceAction.ActionTime, 1*time.Second)
-	assert.Nil(t, spotJSON.Spot.TerminationTime)
+	_, err := spotPatch.Patch([]byte(`{`))
+	require.Error(t, err)
 }

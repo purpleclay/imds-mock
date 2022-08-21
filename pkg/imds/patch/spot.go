@@ -46,13 +46,24 @@ const spotTemplate = `[
 			}{{ if .TerminationTime }},
 			"termination-time": "{{ .TerminationTime }}"{{ end }}
 		}
+	},
+	{
+		"op": "add",
+		"path": "/events",
+		"value": {
+			"recommendations": {
+				"rebalance": {
+					"noticeTime": "{{ .RebalanceTime }}"
+				}
+			}
+		}
 	}
 ]`
 
 var spotPatch = template.Must(template.New("SpotPatch").
 	Parse(spotTemplate))
 
-// SpotInstanceAction ...
+// SpotInstanceAction is used to represent the lifecycle event (or action) of a spot instance
 type SpotInstanceAction string
 
 const (
@@ -61,12 +72,16 @@ const (
 	HibernateSpotInstanceAction SpotInstanceAction = "hibernate"
 )
 
-// Spot ...
+// Spot is used to patch a JSON document and replicate the use and lifecycle of a spot EC2 instance.
+// The lifecycle of a spot instance is exposed through the use of an instance action category,
+// see: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-instance-termination-notices.html#instance-action-metadata
 type Spot struct {
 	InstanceAction SpotInstanceAction
 }
 
-// Patch ...
+// Patch the document based on the provided instance action. The resulting JSON
+// document will conform to the IMDS specification and expose spot details within
+// the IMDS metadata
 func (p Spot) Patch(in []byte) ([]byte, error) {
 	now := time.Now().UTC().Format(time.RFC3339)
 
@@ -74,9 +89,11 @@ func (p Spot) Patch(in []byte) ([]byte, error) {
 		Action          SpotInstanceAction
 		ActionTime      string
 		TerminationTime string
+		RebalanceTime   string
 	}{
-		Action:     p.InstanceAction,
-		ActionTime: now,
+		Action:        p.InstanceAction,
+		ActionTime:    now,
+		RebalanceTime: now,
 	}
 
 	if spotDetails.Action == TerminateSpotInstanceAction {
