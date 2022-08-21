@@ -1,6 +1,6 @@
 module github.com/purpleclay/imds-mock
 
-go 1.18
+go 1.19
 
 require (
 	github.com/evanphx/json-patch/v5 v5.6.0
