@@ -20,52 +20,45 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package middleware_test
+package cache
 
 import (
-	"net/http"
-	"net/http/httptest"
 	"testing"
 
-	"github.com/gin-gonic/gin"
-	"github.com/purpleclay/imds-mock/pkg/imds/cache"
-	"github.com/purpleclay/imds-mock/pkg/imds/middleware"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCache_Miss(t *testing.T) {
-	count := 0
+func TestSet(t *testing.T) {
+	memc := New()
+	memc.Set("testing", "123")
 
-	r := gin.Default()
-	r.GET("/cache", middleware.Cache(cache.New()), func(c *gin.Context) {
-		count++
-	})
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/cache", http.NoBody)
-
-	r.ServeHTTP(w, req)
-
-	assert.Equal(t, 1, count)
+	assert.Len(t, memc.items, 1)
 }
 
-func TestCache_Hit(t *testing.T) {
-	count := 0
+func TestGet(t *testing.T) {
+	memc := New()
+	memc.items["testing"] = "123"
 
-	r := gin.Default()
-	r.GET("/cache", middleware.Cache(cache.New()), func(c *gin.Context) {
-		count++
-		c.String(http.StatusOK, "ok")
-	})
+	item, exists := memc.Get("testing")
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/cache", http.NoBody)
+	assert.True(t, exists)
+	assert.Equal(t, "123", item)
+}
 
-	r.ServeHTTP(w, req)
-	// Its important to reset the buffer here
-	w.Body.Reset()
-	r.ServeHTTP(w, req)
+func TestGetNotExists(t *testing.T) {
+	memc := New()
 
-	assert.Equal(t, 1, count)
-	assert.Equal(t, "ok", w.Body.String())
+	item, exists := memc.Get("testing")
+
+	assert.False(t, exists)
+	assert.Equal(t, "", item)
+}
+
+func TestRemove(t *testing.T) {
+	memc := New()
+	memc.items["testing"] = "123"
+
+	memc.Remove("testing")
+
+	assert.Len(t, memc.items, 0)
 }
