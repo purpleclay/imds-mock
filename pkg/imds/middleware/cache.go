@@ -27,6 +27,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/purpleclay/imds-mock/pkg/imds/cache"
 )
 
 // Capture any write to the response with an in memory buffer
@@ -43,11 +44,9 @@ func (w *cacheWriter) Write(data []byte) (n int, err error) {
 // Cache provides middleware caching any request to the IMDS mock using
 // an in memory map. The IMDS response is cached using a lookup query based
 // on the IMDS instance category path
-func Cache() gin.HandlerFunc {
-	cache := map[string]string{}
-
+func Cache(memcache *cache.MemCache) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if res, hit := cache[c.Request.URL.Path]; hit {
+		if res, hit := memcache.Get(c.Request.URL.Path); hit {
 			c.Writer.Header().Add("Content-Type", "text/plain")
 			c.String(http.StatusOK, res)
 
@@ -58,7 +57,7 @@ func Cache() gin.HandlerFunc {
 		c.Writer = &cacheWriter{ResponseWriter: c.Writer}
 		c.Next()
 
-		// Grab the contents of the cache
-		cache[c.Request.URL.Path] = c.Writer.(*cacheWriter).body.String()
+		// Set the contents of the cache
+		memcache.Set(c.Request.URL.Path, c.Writer.(*cacheWriter).body.String())
 	}
 }

@@ -20,52 +20,45 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package middleware_test
+package cache
 
-import (
-	"net/http"
-	"net/http/httptest"
-	"testing"
+import "sync"
 
-	"github.com/gin-gonic/gin"
-	"github.com/purpleclay/imds-mock/pkg/imds/cache"
-	"github.com/purpleclay/imds-mock/pkg/imds/middleware"
-	"github.com/stretchr/testify/assert"
-)
-
-func TestCache_Miss(t *testing.T) {
-	count := 0
-
-	r := gin.Default()
-	r.GET("/cache", middleware.Cache(cache.New()), func(c *gin.Context) {
-		count++
-	})
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/cache", http.NoBody)
-
-	r.ServeHTTP(w, req)
-
-	assert.Equal(t, 1, count)
+// MemCache defines a lightweight in-memory cache that is thread safe
+type MemCache struct {
+	items map[string]string
+	mu    sync.RWMutex
 }
 
-func TestCache_Hit(t *testing.T) {
-	count := 0
+// New will generate an return a new empty in-memory cache
+func New() *MemCache {
+	return &MemCache{
+		items: map[string]string{},
+	}
+}
 
-	r := gin.Default()
-	r.GET("/cache", middleware.Cache(cache.New()), func(c *gin.Context) {
-		count++
-		c.String(http.StatusOK, "ok")
-	})
+// Set a value within the cache using the given cache key. If the value already
+// exists, it will be overwritten
+func (c *MemCache) Set(key string, value string) {
+	c.mu.Lock()
+	c.items[key] = value
+	c.mu.Unlock()
+}
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/cache", http.NoBody)
+// Get returns an item from the cache using the given cache key. A flag is also returned
+// indicating whether the item exists. If no item exists, an empty string will be returned
+func (c *MemCache) Get(key string) (string, bool) {
+	c.mu.RLock()
+	item, exists := c.items[key]
+	c.mu.RUnlock()
 
-	r.ServeHTTP(w, req)
-	// Its important to reset the buffer here
-	w.Body.Reset()
-	r.ServeHTTP(w, req)
+	return item, exists
+}
 
-	assert.Equal(t, 1, count)
-	assert.Equal(t, "ok", w.Body.String())
+// Remove an item from the cache using the given cache key. Nothing will happen if no
+// item exists
+func (c *MemCache) Remove(key string) {
+	c.mu.Lock()
+	delete(c.items, key)
+	c.mu.Unlock()
 }

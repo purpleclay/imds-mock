@@ -31,6 +31,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/purpleclay/imds-mock/pkg/imds/cache"
 	"github.com/purpleclay/imds-mock/pkg/imds/middleware"
 	"github.com/purpleclay/imds-mock/pkg/imds/patch"
 	"github.com/purpleclay/imds-mock/pkg/imds/token"
@@ -149,11 +150,14 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 		return nil, err
 	}
 
-	r.GET("/latest/meta-data", middleware.Cache(), func(c *gin.Context) {
+	// Locally managed cache
+	memcache := cache.New()
+
+	r.GET("/latest/meta-data", middleware.Cache(memcache), func(c *gin.Context) {
 		c.String(http.StatusOK, keys(mockResponse, ""))
 	})
 
-	r.GET("/latest/meta-data/*category", middleware.Cache(), func(c *gin.Context) {
+	r.GET("/latest/meta-data/*category", middleware.Cache(memcache), func(c *gin.Context) {
 		categoryPath := c.Param("category")
 		if categoryPath == "/" {
 			// Exact same behaviour as /latest/meta-data
