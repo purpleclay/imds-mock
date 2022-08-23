@@ -29,6 +29,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -71,7 +72,31 @@ const (
 )
 
 //go:embed on-demand.json
-var onDemandResponse []byte
+var onDemandInstance []byte
+
+// Really crude attempt to protect a byte array from concurrency issues during
+// event driven patches
+type patchedJSON struct {
+	data []byte
+	mu   sync.RWMutex
+}
+
+func (p *patchedJSON) Bytes() []byte {
+	p.mu.RLock()
+	copy := p.data
+	p.mu.RUnlock()
+
+	return copy
+}
+
+func (p *patchedJSON) Patch(patcher patch.JSONPatcher) error {
+	p.mu.Lock()
+	var err error
+	p.data, err = patcher.Patch(p.data)
+	p.mu.Unlock()
+
+	return err
+}
 
 // Options provides a set of options for configuring the behaviour
 // of the IMDS mock
@@ -163,35 +188,37 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 	// Locally managed cache
 	memcache := cache.New()
 
-	// Patch instance tags if present
+	// Manage the patching of the underlying JSON that is served by the IMDS mock
+	mockResponse := patchedJSON{data: onDemandInstance}
+
 	var err error
-	if onDemandResponse, err = patchInstanceTags(onDemandResponse, opts); err != nil {
-		return nil, err
+	if !opts.ExcludeInstanceTags {
+		err = mockResponse.Patch(patch.InstanceTag{Tags: opts.InstanceTags})
 	}
 
 	// Event based patching of spot instance
 	if opts.Spot {
+		// TODO: if duration is 0, then don't raise an event (better unit testing)
+
 		event.Once(opts.SpotAction.Duration, func() {
-			if onDemandResponse, err = patchSpotInstance(onDemandResponse, opts); err != nil {
-				// TODO: log failure to patch spot instance
+			if patchErr := mockResponse.Patch(patch.Spot{InstanceAction: opts.SpotAction.Action}); patchErr != nil {
 				return
 			}
 
 			// Invalidate the cache to ensure the mock returns the new spot instance categories
-			memcache.Remove("/latest/meta-data")
-			memcache.Remove("/latest/meta-data/")
+			memcache.Remove("/latest/meta-data", "/latest/meta-data/")
 		})
 	}
 
 	r.GET("/latest/meta-data", middleware.Cache(memcache), func(c *gin.Context) {
-		c.String(http.StatusOK, keys(onDemandResponse, ""))
+		c.String(http.StatusOK, keys(mockResponse.Bytes(), ""))
 	})
 
 	r.GET("/latest/meta-data/*category", middleware.Cache(memcache), func(c *gin.Context) {
 		categoryPath := c.Param("category")
 		if categoryPath == "/" {
 			// Exact same behaviour as /latest/meta-data
-			c.String(http.StatusOK, keys(onDemandResponse, ""))
+			c.String(http.StatusOK, keys(mockResponse.Bytes(), ""))
 			return
 		}
 
@@ -199,7 +226,7 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 		categoryPath = strings.TrimSuffix(categoryPath, "/")
 		categoryPath = strings.ReplaceAll(categoryPath, "/", ".")[1:]
 
-		res := gjson.GetBytes(onDemandResponse, categoryPath)
+		res := gjson.GetBytes(mockResponse.Bytes(), categoryPath)
 
 		if !res.Exists() {
 			c.Writer.Header().Add("Content-Type", "text/html")
@@ -211,7 +238,7 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 
 		// If the path returns a JSON object, then return a set of keys
 		if res.IsObject() && notReservedPath(categoryPath) {
-			c.String(http.StatusOK, keys(onDemandResponse, categoryPath))
+			c.String(http.StatusOK, keys(mockResponse.Bytes(), categoryPath))
 		} else {
 			c.String(http.StatusOK, res.String())
 		}
@@ -285,24 +312,4 @@ func keys(json []byte, path string) string {
 func notReservedPath(path string) bool {
 	_, ok := reservedPaths[path]
 	return !ok
-}
-
-func patchInstanceTags(in []byte, opts Options) ([]byte, error) {
-	if !opts.ExcludeInstanceTags {
-		patcher := patch.InstanceTag{
-			Tags: opts.InstanceTags,
-		}
-
-		return patcher.Patch(in)
-	}
-
-	return in, nil
-}
-
-func patchSpotInstance(in []byte, opts Options) ([]byte, error) {
-	patcher := patch.Spot{
-		InstanceAction: opts.SpotAction.Action,
-	}
-
-	return patcher.Patch(in)
 }

@@ -82,7 +82,7 @@ func TestSpotPatch_TerminateAction(t *testing.T) {
 			var spotJSON spotPatchJSON
 			json.Unmarshal(out, &spotJSON)
 
-			now := time.Now().UTC()
+			now := time.Now().UTC().Add(2 * time.Minute)
 
 			assert.Equal(t, "spot", spotJSON.InstanceLifeCycle)
 			assert.Equal(t, string(tt.action), spotJSON.Spot.InstanceAction.Action)

@@ -57,8 +57,10 @@ func (c *MemCache) Get(key string) (string, bool) {
 
 // Remove an item from the cache using the given cache key. Nothing will happen if no
 // item exists
-func (c *MemCache) Remove(key string) {
+func (c *MemCache) Remove(keys ...string) {
 	c.mu.Lock()
-	delete(c.items, key)
+	for _, key := range keys {
+		delete(c.items, key)
+	}
 	c.mu.Unlock()
 }

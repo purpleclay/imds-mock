@@ -27,6 +27,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/purpleclay/imds-mock/pkg/imds"
@@ -42,6 +43,7 @@ var testOptions = imds.Options{
 	InstanceTags:        imds.DefaultOptions.InstanceTags,
 	Pretty:              imds.DefaultOptions.Pretty,
 	Spot:                imds.DefaultOptions.Spot,
+	SpotAction:          imds.DefaultOptions.SpotAction,
 }
 
 func TestMain(m *testing.M) {
@@ -352,6 +354,8 @@ func TestSpotSimulation(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/spot/instance-action", http.NoBody)
 
 	r, _ := imds.ServeWith(opts)
+	// Introduce an artificial delay to ensure spot event is fired
+	time.Sleep(100 * time.Millisecond)
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)

@@ -33,7 +33,7 @@ func Once(delay time.Duration, fn func()) {
 	go func() {
 		<-timer.C
 
-		// Prevent further firing of the timers
+		// Prevent further firing of the timer
 		timer.Stop()
 
 		fn()
