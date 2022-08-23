@@ -22,14 +22,20 @@ SOFTWARE.
 
 package event
 
-import "time"
+import (
+	"time"
+)
 
-// Once ...
-func Once(fn func(), delay time.Duration) {
+// Once will execute a user defined function after a given duration only once
+func Once(delay time.Duration, fn func()) {
 	timer := time.NewTimer(delay)
 
 	go func() {
 		<-timer.C
+
+		// Prevent further firing of the timers
+		timer.Stop()
+
 		fn()
 	}()
 }
