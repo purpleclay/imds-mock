@@ -29,6 +29,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/purpleclay/imds-mock/pkg/imds/cache"
@@ -103,6 +104,15 @@ type Options struct {
 	// through the IMDS mock. By default this will set to false and an on-demand
 	// instance will be simulated
 	Spot bool
+
+	// SpotAction ...
+	SpotAction SpotActionEvent
+}
+
+// SpotActionEvent ...
+type SpotActionEvent struct {
+	Action   patch.SpotInstanceAction
+	Duration time.Duration
 }
 
 // DefaultOptions defines the default set of options that will be applied
@@ -117,6 +127,10 @@ var DefaultOptions = Options{
 	Port:   1338,
 	Pretty: false,
 	Spot:   false,
+	SpotAction: SpotActionEvent{
+		Action:   patch.TerminateSpotInstanceAction,
+		Duration: 0 * time.Second,
+	},
 }
 
 // Used as a hashset for quick lookups. Any matched path will just return its value
@@ -143,15 +157,18 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 	// see: https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies
 	r.SetTrustedProxies(nil)
 
+	// Locally managed cache
+	memcache := cache.New()
+
+	// TODO: change patching approach
+	// TODO: event driven patch (patch JSON then invalidate the cache)
+
 	// Dynamically build the JSON response message used by the mock by using JSON
 	// patching strategies defined by the input options
 	mockResponse, err := patchResponseJSON(onDemandResponse, opts)
 	if err != nil {
 		return nil, err
 	}
-
-	// Locally managed cache
-	memcache := cache.New()
 
 	r.GET("/latest/meta-data", middleware.Cache(memcache), func(c *gin.Context) {
 		c.String(http.StatusOK, keys(mockResponse, ""))

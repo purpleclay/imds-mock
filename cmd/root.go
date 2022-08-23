@@ -24,20 +24,80 @@ package cmd
 
 import (
 	ctx "context"
+	"fmt"
 	"io"
+	"strings"
+	"time"
 
 	"github.com/purpleclay/imds-mock/pkg/imds"
+	"github.com/purpleclay/imds-mock/pkg/imds/patch"
 	"github.com/spf13/cobra"
 )
+
+// Custom flag for parsing a spot action
+type spotActionFlag struct {
+	event *imds.SpotActionEvent
+}
+
+func (e *spotActionFlag) String() string {
+	return "terminate=0s"
+}
+
+func (e *spotActionFlag) Set(value string) error {
+	action, duration, found := strings.Cut(value, "=")
+	if !found {
+		return fmt.Errorf("%s must be formatted as key=value e.g. terminate=2s", value)
+	}
+
+	spotAction := patch.SpotInstanceAction(action)
+	switch spotAction {
+	case patch.TerminateSpotInstanceAction:
+		fallthrough
+	case patch.HibernateSpotInstanceAction:
+		fallthrough
+	case patch.StopSpotInstanceAction:
+		break
+	default:
+		return fmt.Errorf("%s is not a supported spot action expecting (%s, %s or %s)",
+			action, patch.TerminateSpotInstanceAction, patch.StopSpotInstanceAction, patch.HibernateSpotInstanceAction)
+	}
+
+	eventTime, err := time.ParseDuration(duration)
+	if err != nil {
+		return fmt.Errorf("%s is not a supported duration format e.g. 10m30s, see: https://pkg.go.dev/time#ParseDuration", duration)
+	}
+
+	e.event = &imds.SpotActionEvent{
+		Action:   spotAction,
+		Duration: eventTime,
+	}
+
+	return nil
+}
+
+func (e *spotActionFlag) Type() string {
+	return "stringToString"
+}
 
 func Execute(out io.Writer) error {
 	opts := imds.DefaultOptions
 
+	// flag to parse custom spot action
+	var spotAction spotActionFlag
+
 	rootCmd := &cobra.Command{
 		Use:          "imds-mock",
-		Short:        "Mock the Amazon Instance Metadata Service (IMDS) for EC2",
+		Short:        "Mocks the Amazon Instance Metadata Service (IMDS) for EC2",
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if spotAction.event != nil {
+				// Overwrite the default spot action, since a custom one has been provided
+				opts.SpotAction = imds.SpotActionEvent{
+					Action:   spotAction.event.Action,
+					Duration: spotAction.event.Duration,
+				}
+			}
+
 			_, err := imds.ServeWith(opts)
 			return err
 		},
@@ -50,6 +110,7 @@ func Execute(out io.Writer) error {
 	flags.IntVar(&opts.Port, "port", imds.DefaultOptions.Port, "the port to be used at startup")
 	flags.BoolVar(&opts.Pretty, "pretty", imds.DefaultOptions.Pretty, "if instance categories should return pretty printed JSON")
 	flags.BoolVar(&opts.Spot, "spot", imds.DefaultOptions.Spot, "enable simulation of a spot instance and interruption notice")
+	flags.Var(&spotAction, "spot-action", "blah")
 
 	rootCmd.AddCommand(newVersionCmd(out))
 	rootCmd.AddCommand(newManPagesCmd(out))

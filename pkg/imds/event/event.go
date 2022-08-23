@@ -20,16 +20,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package main
+package event
 
-import (
-	"os"
+import "time"
 
-	"github.com/purpleclay/imds-mock/cmd"
-)
+// Once ...
+func Once(fn func(), delay time.Duration) {
+	timer := time.NewTimer(delay)
 
-func main() {
-	if err := cmd.Execute(os.Stdout); err != nil {
-		os.Exit(1)
-	}
+	go func() {
+		<-timer.C
+		fn()
+	}()
 }
