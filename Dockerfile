@@ -6,6 +6,9 @@ RUN chmod +rwx /tini-static
 
 FROM scratch
 
+# Explicitly turn on release mode within Gin
+ENV GIN_MODE=release
+
 COPY --from=build /tini-static /bin/tini-static
 COPY imds-mock /bin/imds-mock
 
