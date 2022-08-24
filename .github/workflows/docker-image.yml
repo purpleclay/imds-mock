@@ -29,7 +29,7 @@ on:
     paths:
       - "Dockerfile"
 env:
-  BUILD_TAG: imds-mock:test
+  BUILD_TAG: imds-mock:${{ github.sha }}
 jobs:
   docker-image:
     runs-on: ubuntu-latest
