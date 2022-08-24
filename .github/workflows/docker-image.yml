@@ -58,8 +58,6 @@ jobs:
       - name: Build
         run: task build
 
-      - run: ls -l
-
       - name: Lint Dockerfile
         uses: hadolint/hadolint-action@v2.1.0
         with:
@@ -75,3 +73,11 @@ jobs:
           context: .
           push: false
           tags: imds-mock:latest
+
+      - name: Trivy Vulnerability Scan
+        uses: aquasecurity/trivy-action@0.7.1
+        with:
+          image-ref: imds-mock:latest
+          format: table
+          exit-code: 1
+          severity: CRITICAL,HIGH
