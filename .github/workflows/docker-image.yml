@@ -63,5 +63,12 @@ jobs:
         with:
           dockerfile: Dockerfile
 
-      # Build container
-      # Trivy Scan
+      - uses: docker/setup-qemu-action@v2
+
+      - uses: docker/setup-buildx-action@
+
+      - name: Build Image
+        uses: docker/build-push-action@v3
+        with:
+          push: false
+          tags: imds-mock:latest
