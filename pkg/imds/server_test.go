@@ -381,4 +381,5 @@ func TestSpotSimulationWithDelay(t *testing.T) {
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Body.String(), `"action":"hibernate"`)
 }
