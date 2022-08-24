@@ -26,6 +26,7 @@ import (
 	_ "embed"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -200,15 +201,17 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 	// Event based patching of spot instance
 	if opts.Spot {
 		if opts.SpotAction.Duration > 0 {
+			fmt.Println("EVENT FIRED")
 			event.Once(opts.SpotAction.Duration, func() {
 				if patchErr := mockResponse.Patch(patch.Spot{InstanceAction: opts.SpotAction.Action}); patchErr != nil {
 					return
 				}
 
 				// Invalidate the cache to ensure the mock returns the new spot instance categories
-				memcache.Remove("/latest/meta-data", "/latest/meta-data/", "/latest/meta-data/spot")
+				memcache.Remove("/latest/meta-data", "/latest/meta-data/")
 			})
 		} else {
+			fmt.Println("YO")
 			if err := mockResponse.Patch(patch.InstanceTag{Tags: opts.InstanceTags}); err != nil {
 				return nil, err
 			}
