@@ -365,7 +365,7 @@ func TestSpotSimulationWithDelay(t *testing.T) {
 	opts.Spot = true
 	opts.SpotAction = imds.SpotActionEvent{
 		Action:   patch.HibernateSpotInstanceAction,
-		Duration: 50 * time.Millisecond,
+		Duration: 20 * time.Millisecond,
 	}
 
 	w := httptest.NewRecorder()
@@ -377,7 +377,7 @@ func TestSpotSimulationWithDelay(t *testing.T) {
 	require.Equal(t, http.StatusNotFound, w.Code)
 
 	// Crude sleep to ensure timer elapses
-	time.Sleep(200 * time.Millisecond)
+	time.Sleep(300 * time.Millisecond)
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
