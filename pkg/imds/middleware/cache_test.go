@@ -69,3 +69,20 @@ func TestCache_Hit(t *testing.T) {
 	assert.Equal(t, 1, count)
 	assert.Equal(t, "ok", w.Body.String())
 }
+
+func TestCache_IgnoresNon200StatusCodes(t *testing.T) {
+	c := cache.New()
+
+	r := gin.Default()
+	r.GET("/cache", middleware.Cache(c), func(c *gin.Context) {
+		c.String(http.StatusBadRequest, "failed")
+	})
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/cache", http.NoBody)
+
+	r.ServeHTTP(w, req)
+
+	_, exists := c.Get("/cache")
+	assert.False(t, exists)
+}

@@ -23,7 +23,6 @@ SOFTWARE.
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/purpleclay/imds-mock/cmd"
@@ -31,7 +30,6 @@ import (
 
 func main() {
 	if err := cmd.Execute(os.Stdout); err != nil {
-		fmt.Println(err)
 		os.Exit(1)
 	}
 }

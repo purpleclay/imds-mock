@@ -20,46 +20,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package cache
+package event_test
 
 import (
+	"sync"
 	"testing"
+	"time"
 
+	"github.com/purpleclay/imds-mock/pkg/imds/event"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSet(t *testing.T) {
-	memc := New()
-	memc.Set("testing", "123")
+func TestOnce(t *testing.T) {
+	var actual time.Time
 
-	assert.Len(t, memc.items, 1)
-}
+	var wg sync.WaitGroup
+	wg.Add(1)
 
-func TestGet(t *testing.T) {
-	memc := New()
-	memc.items["testing"] = "123"
+	event.Once(10*time.Millisecond, func() {
+		actual = time.Now().UTC()
+		wg.Done()
+	})
 
-	item, exists := memc.Get("testing")
+	wg.Wait()
 
-	assert.True(t, exists)
-	assert.Equal(t, "123", item)
-}
-
-func TestGetNotExists(t *testing.T) {
-	memc := New()
-
-	item, exists := memc.Get("testing")
-
-	assert.False(t, exists)
-	assert.Equal(t, "", item)
-}
-
-func TestRemove(t *testing.T) {
-	memc := New()
-	memc.items["testing1"] = "123"
-	memc.items["testing2"] = "456"
-
-	memc.Remove("testing1", "testing2")
-
-	assert.Len(t, memc.items, 0)
+	// If event fired successfully, the time will not be the default zero time
+	assert.NotEqual(t, 1, actual.Year())
 }

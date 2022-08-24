@@ -27,9 +27,11 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/purpleclay/imds-mock/pkg/imds"
+	"github.com/purpleclay/imds-mock/pkg/imds/patch"
 	"github.com/purpleclay/imds-mock/pkg/imds/token"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -42,6 +44,7 @@ var testOptions = imds.Options{
 	InstanceTags:        imds.DefaultOptions.InstanceTags,
 	Pretty:              imds.DefaultOptions.Pretty,
 	Spot:                imds.DefaultOptions.Spot,
+	SpotAction:          imds.DefaultOptions.SpotAction,
 }
 
 func TestMain(m *testing.M) {
@@ -355,4 +358,28 @@ func TestSpotSimulation(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestSpotSimulationWithDelay(t *testing.T) {
+	opts := testOptions
+	opts.Spot = true
+	opts.SpotAction = imds.SpotActionEvent{
+		Action:   patch.HibernateSpotInstanceAction,
+		Duration: 10 * time.Millisecond,
+	}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/spot/instance-action", http.NoBody)
+
+	r, _ := imds.ServeWith(opts)
+	r.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusNotFound, w.Code)
+
+	// Crude sleep to ensure timer elapses
+	time.Sleep(200 * time.Millisecond)
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Body.String(), `"action":"hibernate"`)
 }

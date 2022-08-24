@@ -57,7 +57,9 @@ func Cache(memcache *cache.MemCache) gin.HandlerFunc {
 		c.Writer = &cacheWriter{ResponseWriter: c.Writer}
 		c.Next()
 
-		// Set the contents of the cache
-		memcache.Set(c.Request.URL.Path, c.Writer.(*cacheWriter).body.String())
+		// Only cache if the response is a 200, as some instance categories are event driven
+		if c.Writer.Status() == http.StatusOK {
+			memcache.Set(c.Request.URL.Path, c.Writer.(*cacheWriter).body.String())
+		}
 	}
 }
