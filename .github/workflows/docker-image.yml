@@ -72,5 +72,6 @@ jobs:
       - name: Build Image
         uses: docker/build-push-action@v3
         with:
+          context: .
           push: false
           tags: imds-mock:latest
