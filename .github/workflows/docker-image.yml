@@ -58,6 +58,8 @@ jobs:
       - name: Build
         run: task build
 
+      - run: ls -l
+
       - name: Lint Dockerfile
         uses: hadolint/hadolint-action@v2.1.0
         with:
