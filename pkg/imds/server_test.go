@@ -365,7 +365,7 @@ func TestSpotSimulationWithDelay(t *testing.T) {
 	opts.Spot = true
 	opts.SpotAction = imds.SpotActionEvent{
 		Action:   patch.HibernateSpotInstanceAction,
-		Duration: 20 * time.Millisecond,
+		Duration: 10 * time.Millisecond,
 	}
 
 	w := httptest.NewRecorder()
