@@ -44,5 +44,7 @@ func TestOnce(t *testing.T) {
 	})
 
 	wg.Wait()
-	assert.WithinDuration(t, expected, actual, 2*time.Millisecond)
+
+	// Delay has to be larger to handle slow CI
+	assert.WithinDuration(t, expected, actual, 10*time.Millisecond)
 }
