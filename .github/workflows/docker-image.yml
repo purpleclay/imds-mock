@@ -74,6 +74,8 @@ jobs:
           push: false
           tags: imds-mock:latest
 
+      - run: docker image ls
+
       - name: Trivy Vulnerability Scan
         uses: aquasecurity/trivy-action@0.7.1
         with:
