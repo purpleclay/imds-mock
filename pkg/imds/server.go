@@ -191,14 +191,28 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 	// Manage the patching of the underlying JSON that is served by the IMDS mock
 	mockResponse := patchedJSON{data: onDemandInstance}
 
-	var err error
 	if !opts.ExcludeInstanceTags {
-		err = mockResponse.Patch(patch.InstanceTag{Tags: opts.InstanceTags})
+		if err := mockResponse.Patch(patch.InstanceTag{Tags: opts.InstanceTags}); err != nil {
+			return nil, err
+		}
 	}
 
 	// Event based patching of spot instance
 	if opts.Spot {
-		// TODO: if duration is 0, then don't raise an event (better unit testing)
+		if opts.SpotAction.Duration > 0 {
+			event.Once(opts.SpotAction.Duration, func() {
+				if patchErr := mockResponse.Patch(patch.Spot{InstanceAction: opts.SpotAction.Action}); patchErr != nil {
+					return
+				}
+
+				// Invalidate the cache to ensure the mock returns the new spot instance categories
+				memcache.Remove("/latest/meta-data", "/latest/meta-data/", "/latest/meta-data/spot")
+			})
+		} else {
+			if err := mockResponse.Patch(patch.InstanceTag{Tags: opts.InstanceTags}); err != nil {
+				return nil, err
+			}
+		}
 
 		event.Once(opts.SpotAction.Duration, func() {
 			if patchErr := mockResponse.Patch(patch.Spot{InstanceAction: opts.SpotAction.Action}); patchErr != nil {
@@ -260,6 +274,7 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 		c.String(http.StatusBadRequest, badRequest)
 	})
 
+	var err error
 	if opts.AutoStart {
 		err = r.Run(":" + strconv.Itoa(opts.Port))
 	}

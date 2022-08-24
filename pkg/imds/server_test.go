@@ -31,6 +31,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/purpleclay/imds-mock/pkg/imds"
+	"github.com/purpleclay/imds-mock/pkg/imds/patch"
 	"github.com/purpleclay/imds-mock/pkg/imds/token"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -354,9 +355,30 @@ func TestSpotSimulation(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/spot/instance-action", http.NoBody)
 
 	r, _ := imds.ServeWith(opts)
-	// Introduce an artificial delay to ensure spot event is fired
-	time.Sleep(100 * time.Millisecond)
 	r.ServeHTTP(w, req)
 
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestSpotSimulationWithDelay(t *testing.T) {
+	opts := testOptions
+	opts.Spot = true
+	opts.SpotAction = imds.SpotActionEvent{
+		Action:   patch.HibernateSpotInstanceAction,
+		Duration: 50 * time.Millisecond,
+	}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/spot/instance-action", http.NoBody)
+
+	r, _ := imds.ServeWith(opts)
+	r.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusNotFound, w.Code)
+
+	// Crude sleep to ensure timer elapses
+	time.Sleep(200 * time.Millisecond)
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
