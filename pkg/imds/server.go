@@ -232,6 +232,7 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 	})
 
 	r.GET("/latest/meta-data/*category", middleware.Cache(memcache), func(c *gin.Context) {
+		fmt.Println(string(mockResponse.Bytes()))
 		categoryPath := c.Param("category")
 		if categoryPath == "/" {
 			// Exact same behaviour as /latest/meta-data
