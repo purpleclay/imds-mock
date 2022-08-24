@@ -216,15 +216,6 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 				return nil, err
 			}
 		}
-
-		event.Once(opts.SpotAction.Duration, func() {
-			if patchErr := mockResponse.Patch(patch.Spot{InstanceAction: opts.SpotAction.Action}); patchErr != nil {
-				return
-			}
-
-			// Invalidate the cache to ensure the mock returns the new spot instance categories
-			memcache.Remove("/latest/meta-data", "/latest/meta-data/")
-		})
 	}
 
 	r.GET("/latest/meta-data", middleware.Cache(memcache), func(c *gin.Context) {
