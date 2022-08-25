@@ -39,6 +39,7 @@ import (
 	"github.com/purpleclay/imds-mock/pkg/imds/patch"
 	"github.com/purpleclay/imds-mock/pkg/imds/token"
 	"github.com/tidwall/gjson"
+	"go.uber.org/zap"
 )
 
 const (
@@ -179,7 +180,7 @@ func Serve() (*gin.Engine, error) {
 // ServeWith configures the IMDS mock based on the incoming options to handle HTTP requests
 // in the exact same way as the IMDS service accessible from any EC2 instance
 func ServeWith(opts Options) (*gin.Engine, error) {
-	r := gin.Default()
+	r := gin.New()
 	injectMiddleware(r, opts)
 
 	// see: https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies
@@ -274,6 +275,9 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 }
 
 func injectMiddleware(r *gin.Engine, opts Options) {
+	logger, _ := zap.NewProduction()
+	r.Use(middleware.ZapLogger(logger), middleware.ZapRecovery(logger))
+
 	if opts.IMDSv2 {
 		r.Use(middleware.StrictV2())
 	} else {
