@@ -1,4 +1,4 @@
-site_name: imds-mock
+site_name: Instance Metadata Service Mock
 site_description: Easy mocking of the Amazon EC2 Instance Metadata Service (IMDS)
 copyright: Always thinking. Forever learning. 💡
 repo_name: purpleclay/imds-mock
@@ -12,22 +12,39 @@ theme:
     accent: purple
   features:
     - content.code.annotate
-    - search.suggest
+    - content.tooltips
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - navigation.tracking
     - search.highlight
     - search.share
+    - search.suggest
   icon:
     repo: fontawesome/brands/github
 
 nav:
   - Home: index.md
-  - install.md
-  - Quick Start: quickstart.md
+  - Getting Started:
+      - Installation: install.md
+      - On Demand Instance: configure/on-demand.md
+      - Instance Tags: configure/instance-tags.md
+      - Spot Instance: configure/spot.md
+  - Reference:
+      - CLI: reference/cli.md
+      - Instance Categories: reference/instance-categories.md
 
 extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/purpleclay
       name: Purple Clay on GitHub
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/purpleclaydev
+      name: Purple Clay on Twitter
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/u/purpleclay
+      name: Purple Clay on Docker Hub
   analytics:
     provider: google
     property: !ENV GH_GOOGLE_ANALYTICS_KEY
@@ -45,6 +62,10 @@ extra:
           note: >-
             Thanks for your feedback! Help us improve this page by
             using our <a href="https://forms.gle/LfBReL2MUPnwUve6A" target=_blank>feedback form</a>.
+  status:
+    new: New Feature
+    deprecated: No Longer Supported
+
 plugins:
   - search
   - minify:
@@ -53,7 +74,7 @@ plugins:
       enable_creation_date: true
       type: timeago
   - git-committers:
-      repository: squidfunk/mkdocs-material
+      repository: purpleclay/imds-mock
       token: !ENV GH_TOKEN
 
 markdown_extensions:
