@@ -87,7 +87,7 @@ func Execute(out io.Writer) error {
 
 	rootCmd := &cobra.Command{
 		Use:          "imds-mock",
-		Short:        "Mocks the Amazon Instance Metadata Service (IMDS) for EC2",
+		Short:        "Easy mocking of the Amazon EC2 Instance Metadata Service (IMDS)",
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if spotAction.event != nil {

@@ -1,2 +1,3 @@
 # imds-mock
-Mock the Amazon Instance Metadata Service (IMDS) for EC2
+
+Easy mocking of the Amazon EC2 Instance Metadata Service (IMDS).

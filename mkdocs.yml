@@ -1,0 +1,73 @@
+site_name: imds-mock
+site_description: Easy mocking of the Amazon EC2 Instance Metadata Service (IMDS)
+copyright: Always thinking. Forever learning. 💡
+repo_name: purpleclay/imds-mock
+repo_url: https://github.com/purpleclay/imds-mock
+edit_uri: edit/main/docs
+
+theme:
+  name: material
+  palette:
+    primary: deep purple
+    accent: purple
+  features:
+    - content.code.annotate
+    - search.suggest
+    - search.highlight
+    - search.share
+  icon:
+    repo: fontawesome/brands/github
+
+nav:
+  - Home: index.md
+  - install.md
+  - Quick Start: quickstart.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/purpleclay
+      name: Purple Clay on GitHub
+  analytics:
+    provider: google
+    property: !ENV GH_GOOGLE_ANALYTICS_KEY
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/emoticon-sad-outline
+          name: This page could be improved
+          data: 0
+          note: >-
+            Thanks for your feedback! Help us improve this page by
+            using our <a href="https://forms.gle/LfBReL2MUPnwUve6A" target=_blank>feedback form</a>.
+plugins:
+  - search
+  - minify:
+      minify_html: true
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+  - git-committers:
+      repository: squidfunk/mkdocs-material
+      token: !ENV GH_TOKEN
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - footnotes
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - md_in_html
+  - meta
+  - toc:
+      permalink: true
