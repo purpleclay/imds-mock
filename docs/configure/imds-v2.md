@@ -10,13 +10,11 @@ It is good security practice to only support IMDSv2[^1] when launching an EC2, a
 
 ## Enforce Strict IMDSv2
 
-### Command Line
+=== "CLI"
 
-```sh
-imds-mock --imdsv2
-```
-
-### Docker
+    ```sh
+    imds-mock --imdsv2
+    ```
 
 === "DockerHub"
 
