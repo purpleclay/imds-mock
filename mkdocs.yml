@@ -32,7 +32,7 @@ nav:
       - Spot Instance: configure/spot.md
   - Reference:
       - CLI: reference/cli.md
-      - Instance Categories: reference/instance-categories.md
+      - Instance Metadata: reference/instance-metadata.md
 
 extra:
   social:
@@ -81,14 +81,22 @@ markdown_extensions:
   - admonition
   - attr_list
   - footnotes
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
+  - pymdownx.mark
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.tilde
   - pymdownx.tabbed:
       alternate_style: true
   - md_in_html
   - meta
+  - tables
   - toc:
       permalink: true
