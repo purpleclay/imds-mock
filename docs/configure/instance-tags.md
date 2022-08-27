@@ -5,7 +5,7 @@ status: new
 
 # Instance Tags
 
-EC2 instance tags can be exposed through the AWS Instance Metadata Service through the `tags/instance` instance category. The imds-mock exposes a default `Name` tag to simulate the enablement of this feature.
+EC2 instance tags can be exposed through the AWS Instance Metadata Service through the `tags/instance` instance category. The imds-mock exposes a default `Name=imds-mock-ec2` tag to simulate the enablement of this feature.
 
 ## Custom Tags
 
