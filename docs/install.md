@@ -129,13 +129,13 @@ You can run imds-mock directly from a docker image.
 === "DockerHub"
 
     ```sh
-    docker run purpleclay/imds-mock
+    docker run -p 1338:1338 purpleclay/imds-mock
     ```
 
 === "GHCR"
 
     ```sh
-    docker run ghcr.io/purpleclay/imds-mock
+    docker run -p 1338:1338 ghcr.io/purpleclay/imds-mock
     ```
 
 ## Verifying Artefacts

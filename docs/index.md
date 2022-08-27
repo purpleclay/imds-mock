@@ -1,1 +1,1 @@
-# Instance Metadata Service (IMDS) Mock
+# Instance Metadata Service Mock
