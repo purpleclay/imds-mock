@@ -28,7 +28,7 @@ nav:
   - Getting Started:
       - Installation: install.md
       - On-Demand Instance: configure/on-demand.md
-      - IMDSv2: configure/imds-v2.md
+      - IMDSv2: configure/imdsv2.md
       - Instance Tags: configure/instance-tags.md
       - Spot Instance: configure/spot.md
   - Reference:
