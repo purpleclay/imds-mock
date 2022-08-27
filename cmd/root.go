@@ -110,7 +110,7 @@ func Execute(out io.Writer) error {
 	flags.IntVar(&opts.Port, "port", imds.DefaultOptions.Port, "the port to be used at startup")
 	flags.BoolVar(&opts.Pretty, "pretty", imds.DefaultOptions.Pretty, "if instance categories should return pretty printed JSON")
 	flags.BoolVar(&opts.Spot, "spot", imds.DefaultOptions.Spot, "enable simulation of a spot instance and interruption notice")
-	flags.Var(&spotAction, "spot-action", "blah")
+	flags.Var(&spotAction, "spot-action", "configure the type and delay of the spot interruption notice")
 
 	rootCmd.AddCommand(newVersionCmd(out))
 	rootCmd.AddCommand(newManPagesCmd(out))
