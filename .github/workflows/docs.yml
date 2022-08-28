@@ -25,6 +25,8 @@ on:
       - "docs/**"
       - "mkdocs.yml"
   push:
+    branches:
+      - main
     tags:
       - "v*.*.*"
     paths:
