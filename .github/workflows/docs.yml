@@ -97,6 +97,6 @@ jobs:
           route: PUT /repos/{owner}/{repo}/pages
           owner: purpleclay
           repo: imds-mock
-          cname: imdsmock.purpleclay.dev
+          cname: purpleclay.dev/docs/imds-mock
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
