@@ -1,6 +1,6 @@
 # Instance Metadata Service Mock
 
-The Instance Metadata Service (IMDS) stores data about an EC2 that you can use to configure or manage the running of that instance. Data is made accessible through the use of instance categories which adapt to its current state. Designing and developing software around the IMDS service poses two main challenges:
+The Instance Metadata Service (IMDS) stores data about an EC2 that you can use to configure or manage the running of that instance. Data is made accessible through the use of instance categories that adapt to its current state. Designing and developing software around the IMDS service poses two main challenges:
 
 1. First and foremost, an EC2 instance is needed; increasing costs
 1. There is no way to influence the IMDS service to simulate EC2 events such as spot termination
