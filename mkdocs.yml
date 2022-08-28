@@ -1,0 +1,103 @@
+site_name: Instance Metadata Service Mock
+site_description: Easy mocking of the Amazon EC2 Instance Metadata Service (IMDS)
+copyright: Always thinking. Forever learning. 💡
+repo_name: purpleclay/imds-mock
+repo_url: https://github.com/purpleclay/imds-mock
+edit_uri: edit/main/docs
+
+theme:
+  name: material
+  palette:
+    primary: deep purple
+    accent: purple
+  features:
+    - content.code.annotate
+    - content.tooltips
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+  icon:
+    repo: fontawesome/brands/github
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: install.md
+      - On-Demand Instance: configure/on-demand.md
+      - IMDSv2: configure/imdsv2.md
+      - Instance Tags: configure/instance-tags.md
+      - Spot Instance: configure/spot.md
+  - Reference:
+      - CLI: reference/cli.md
+      - Instance Metadata: reference/instance-metadata.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/purpleclay
+      name: Purple Clay on GitHub
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/purpleclaydev
+      name: Purple Clay on Twitter
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/u/purpleclay
+      name: Purple Clay on Docker Hub
+  analytics:
+    provider: google
+    property: !ENV GH_GOOGLE_ANALYTICS_KEY
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/emoticon-sad-outline
+          name: This page could be improved
+          data: 0
+          note: >-
+            Thanks for your feedback! Help us improve this page by
+            using our <a href="https://forms.gle/LfBReL2MUPnwUve6A" target=_blank>feedback form</a>.
+  status:
+    new: New Feature
+    deprecated: No Longer Supported
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+  - git-committers:
+      repository: purpleclay/imds-mock
+      token: !ENV GH_TOKEN
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - footnotes
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.mark
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tilde
+  - pymdownx.tabbed:
+      alternate_style: true
+  - md_in_html
+  - meta
+  - tables
+  - toc:
+      permalink: true

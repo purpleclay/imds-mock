@@ -83,8 +83,13 @@ type Spot struct {
 // document will conform to the IMDS specification and expose spot details within
 // the IMDS metadata
 func (p Spot) Patch(in []byte) ([]byte, error) {
-	// A spot interruption notice is issued two minutes in advance during a best case scenario
-	now := time.Now().UTC().Add(2 * time.Minute).Format(time.RFC3339)
+	// A spot interruption notice can be issued two minutes in advance during a best case scenario
+	nowTime := time.Now().UTC()
+	if p.InstanceAction != HibernateSpotInstanceAction {
+		nowTime = nowTime.Add(2 * time.Minute)
+	}
+
+	now := nowTime.Format(time.RFC3339)
 
 	spotDetails := struct {
 		Action          SpotInstanceAction

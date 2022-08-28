@@ -128,7 +128,7 @@ dockers:
     build_flag_templates:
       - "--pull"
       - "--label=org.opencontainers.image.licenses=MIT"
-      - "--label=org.opencontainers.image.description=Mock the Amazon Instance Metadata Service (IMDS) for EC2"
+      - "--label=org.opencontainers.image.description=Easy mocking of the Amazon EC2 Instance Metadata Service (IMDS)"
       - "--label=org.opencontainers.image.created={{.Date}}"
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
@@ -145,7 +145,7 @@ dockers:
     build_flag_templates:
       - "--pull"
       - "--label=org.opencontainers.image.licenses=MIT"
-      - "--label=org.opencontainers.image.description=Mock the Amazon Instance Metadata Service (IMDS) for EC2"
+      - "--label=org.opencontainers.image.description=Easy mocking of the Amazon EC2 Instance Metadata Service (IMDS)"
       - "--label=org.opencontainers.image.created={{.Date}}"
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
@@ -178,7 +178,7 @@ brews:
       name: homebrew-tap
     folder: Formula
     homepage: "https://github.com/purpleclay/imds-mock"
-    description: "Mock the Amazon Instance Metadata Service (IMDS) for EC2"
+    description: "Easy mocking of the Amazon EC2 Instance Metadata Service (IMDS)"
     license: MIT
     install: |
       bin.install "imds-mock"
@@ -201,7 +201,7 @@ nfpms:
   - file_name_template: "{{ .ConventionalFileName }}"
     id: packages
     homepage: "https://github.com/purpleclay/imds-mock"
-    description: "Mock the Amazon Instance Metadata Service (IMDS) for EC2"
+    description: "Easy mocking of the Amazon EC2 Instance Metadata Service (IMDS)"
     maintainer: Purple Clay <purpleclaygh@gmail.com>
     license: MIT
     vendor: Purple Clay
@@ -247,7 +247,7 @@ publishers:
 
 aurs:
   - homepage: "https://github.com/purpleclay/imds-mock"
-    description: "Mock the Amazon Instance Metadata Service (IMDS) for EC2"
+    description: "Easy mocking of the Amazon EC2 Instance Metadata Service (IMDS)"
     maintainers:
       - "Purple Clay <purple clay at gmail dot com>"
     license: MIT
@@ -277,5 +277,6 @@ release:
 
     ## What to do next?
 
+    - Read the [documentation](https://purpleclay.github.io/imds-mock/)
     - Follow me on [Twitter](https://twitter.com/purpleclaydev)
     - Read an article on [Medium](https://medium.com/@purpleclay)
