@@ -3,6 +3,7 @@ IgnoreURLs:
   - https://twitter.com/purpleclaydev
 IgnoreDirectoryMissingTrailingSlash: true
 IgnoreAltMissing: true
+IgnoreInternalEmptyHash: true
 ExternalTimeout: 60
 HTTPHeaders:
   "Range": "bytes=0-10"
