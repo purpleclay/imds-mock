@@ -52,22 +52,26 @@ type spotPatchJSON struct {
 	} `json:"events"`
 }
 
-func TestSpotPatch_TerminateAction(t *testing.T) {
+func TestSpotPatch(t *testing.T) {
 	tests := []struct {
-		name   string
-		action patch.SpotInstanceAction
+		name     string
+		action   patch.SpotInstanceAction
+		duration time.Duration
 	}{
 		{
-			name:   "TerminateAction",
-			action: patch.TerminateSpotInstanceAction,
+			name:     "TerminateAction",
+			action:   patch.TerminateSpotInstanceAction,
+			duration: 2 * time.Minute,
 		},
 		{
-			name:   "StopAction",
-			action: patch.StopSpotInstanceAction,
+			name:     "StopAction",
+			action:   patch.StopSpotInstanceAction,
+			duration: 2 * time.Minute,
 		},
 		{
-			name:   "HibernateAction",
-			action: patch.HibernateSpotInstanceAction,
+			name:     "HibernateAction",
+			action:   patch.HibernateSpotInstanceAction,
+			duration: 0,
 		},
 	}
 	for _, tt := range tests {
@@ -82,7 +86,7 @@ func TestSpotPatch_TerminateAction(t *testing.T) {
 			var spotJSON spotPatchJSON
 			json.Unmarshal(out, &spotJSON)
 
-			now := time.Now().UTC().Add(2 * time.Minute)
+			now := time.Now().UTC().Add(tt.duration)
 
 			assert.Equal(t, "spot", spotJSON.InstanceLifeCycle)
 			assert.Equal(t, string(tt.action), spotJSON.Spot.InstanceAction.Action)
