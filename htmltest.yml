@@ -1,5 +1,6 @@
 IgnoreURLs:
   - fonts.gstatic.com
+  - https://twitter.com/purpleclaydev
 IgnoreDirectoryMissingTrailingSlash: true
 IgnoreAltMissing: true
 ExternalTimeout: 60
