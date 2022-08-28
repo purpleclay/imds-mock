@@ -9,7 +9,7 @@ EC2 instance tags can be exposed through the AWS Instance Metadata Service throu
 
 ## Custom Tags
 
-If you wish to override the default instance tags exposed by the imds-mock the `--instance-tags` flag accepts a list of `key=value` pairs.
+If you wish to override the default instance tags exposed by the imds-mock, the `--instance-tags` flag accepts a list of `key=value` pairs.
 
 === "CLI"
 
@@ -31,7 +31,7 @@ If you wish to override the default instance tags exposed by the imds-mock the `
 
 ### Querying a Tag
 
-Any custom tag can be retrieved using the root `tags/instance` metadata category. To therefore retrieve the custom `Environment` tag, the following request would be used:
+Any custom tag can be retrieved using the root metadata category `tags/instance`. For example, to retrieve the `Environment` tag:
 
 ```sh
 curl http://localhost:1338/latest/meta-data/tags/instance/Environment
@@ -39,7 +39,7 @@ curl http://localhost:1338/latest/meta-data/tags/instance/Environment
 
 ## Excluding Instance Tags
 
-By default EC2 instance tags are omitted from the AWS Instance Metadata Service. To simulate this in the imds-mock, tags can be explicitly excluded through the `--exclude-instance-tags` flag.
+EC2 instance tags are omitted from the AWS Instance Metadata Service by default. Set the `--exclude-instance-tags` flag to simulate this in the imds-mock:
 
 === "CLI"
 

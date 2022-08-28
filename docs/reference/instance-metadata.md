@@ -4,9 +4,9 @@ icon: material/aws
 
 # Instance Metadata Categories
 
-Instance metadata is divided into categories[^1]. To retrieve instance metadata, you specify the category in the request, and the metadata is returned in the response.
+The Instance Metadata Service divides metadata into categories[^1]. Clients must include the categories path within a request when retrieving instance metadata.
 
-The `imds-mock` offers different levels of support for each of the instance categories. Please consult this table as new features will be supported with each future release.
+The `imds-mock` offers different levels of support for each of the instance categories. Please consult this table with each future release.
 
 !!! info "Table Key"
 

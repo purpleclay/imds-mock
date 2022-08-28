@@ -5,11 +5,11 @@ status: new
 
 # Spot Instance
 
-The imds-mock can simulate a spot instance. A spot instance is more cost-effective than an on-demand instance, but is at the mercy of spot interruptions. Typically an interruption notice will be issued by Amazon EC2 two minutes before it either stops or terminates your spot instance. No warning is issued prior to hibernation.
+The imds-mock can simulate a spot instance. A spot instance is more cost-effective than an on-demand instance but is at the mercy of spot interruptions. An interruption notice will typically be issued by Amazon EC2 two minutes before it stops or terminates your spot instance, with no warning issued before hibernation.
 
 ## Switching Instance Type
 
-To enable simulation of a spot instance the `--spot` flag should be used. The `spot/instance-action` metadata category will immediately be available and will return an interruption notice to terminate the instance.
+Set the `--spot` flag to enable spot simulation within the imds-mock. The `spot/instance-action` metadata category will immediately be available and will return an interruption notice to terminate the instance.
 
 === "CLI"
 
@@ -31,7 +31,7 @@ To enable simulation of a spot instance the `--spot` flag should be used. The `s
 
 ## Configure Interruption Notice
 
-You have full control over the type of interruption notice that is raised within the imds-mock. The type (`terminate`, `stop` and `hibernate`) and initial delay for raising the interruption notice can be configured through the `--spot-action` flag.
+You have complete control over the spot interruption notice raised by the imds-mock. Set the `--spot-action` flag, specifying the interruption type (`terminate`, `stop` or `hibernate`) and an initial delay to raise a spot interruption notice.
 
 === "CLI"
 
@@ -53,4 +53,4 @@ You have full control over the type of interruption notice that is raised within
 
 !!! info "Handling hibernation a little differently"
 
-    A hibernate interruption notice does not provide a two minute warning and is effective immediately. It therefore should not be accessible through the `spot/instance-action` metadata category. However, as the mock will remain running, this category will be available and contain details of when the hibernation was initiated.
+    A hibernate interruption notice does not provide a two-minute warning and is effective immediately. It, therefore, should not be accessible through the `spot/instance-action` metadata category. However, as the mock will remain running, this category will be available and contain details of the hibernation interruption.

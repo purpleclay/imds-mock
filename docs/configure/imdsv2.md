@@ -4,9 +4,9 @@ icon: material/shield-key-outline
 
 # IMDSv2
 
-IMDSv2 uses session-orientated requests. A session token must be requested before accessing any endpoints on the imds-mock. When requesting a token, a maximum TTL of between one second and six hours can be used.
+IMDSv2 uses session-orientated requests, prohibiting access to any endpoints on the imds-mock without using a session token. A client must request a token with a maximum TTL of between one second and six hours before further requests.
 
-It is good security practice to only support IMDSv2[^1] when launching an EC2, and to simulate this behaviour the `--imdsv2` flag can be used.
+It is good security practice to only support IMDSv2[^1] when launching an EC2. Enable the `--imdsv2` flag to simulate this behaviour.
 
 ## Enforce Strict IMDSv2
 
