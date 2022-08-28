@@ -1,5 +1,6 @@
 site_name: Instance Metadata Service Mock
 site_description: Easy mocking of the Amazon EC2 Instance Metadata Service (IMDS)
+site_url: https://docs.purplelcay.dev/imds-mock/
 copyright: Always thinking. Forever learning. 💡
 repo_name: purpleclay/imds-mock
 repo_url: https://github.com/purpleclay/imds-mock
@@ -22,6 +23,9 @@ theme:
     - search.suggest
   icon:
     repo: fontawesome/brands/github
+  font:
+    text: Roboto
+    code: Roboto Mono
 
 nav:
   - Home: index.md
