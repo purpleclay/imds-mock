@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://docs.purplelcay.dev/imds-mock/</loc>
+         <loc>https://docs.purpleclay.dev/imds-mock/</loc>
          <lastmod>2022-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://docs.purplelcay.dev/imds-mock/install/</loc>
+         <loc>https://docs.purpleclay.dev/imds-mock/install/</loc>
          <lastmod>2022-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://docs.purplelcay.dev/imds-mock/configure/imdsv2/</loc>
+         <loc>https://docs.purpleclay.dev/imds-mock/configure/imdsv2/</loc>
          <lastmod>2022-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://docs.purplelcay.dev/imds-mock/configure/instance-tags/</loc>
+         <loc>https://docs.purpleclay.dev/imds-mock/configure/instance-tags/</loc>
          <lastmod>2022-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://docs.purplelcay.dev/imds-mock/configure/on-demand/</loc>
+         <loc>https://docs.purpleclay.dev/imds-mock/configure/on-demand/</loc>
          <lastmod>2022-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://docs.purplelcay.dev/imds-mock/configure/spot/</loc>
+         <loc>https://docs.purpleclay.dev/imds-mock/configure/spot/</loc>
          <lastmod>2022-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://docs.purplelcay.dev/imds-mock/reference/cli/</loc>
+         <loc>https://docs.purpleclay.dev/imds-mock/reference/cli/</loc>
          <lastmod>2022-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://docs.purplelcay.dev/imds-mock/reference/instance-metadata/</loc>
+         <loc>https://docs.purpleclay.dev/imds-mock/reference/instance-metadata/</loc>
          <lastmod>2022-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
