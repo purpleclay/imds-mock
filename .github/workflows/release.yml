@@ -91,7 +91,7 @@ jobs:
           username: ${{ secrets.GH_DOCKER_HUB_USERNAME }}
           password: ${{ secrets.GH_DOCKER_HUB_PASSWORD }}
           repository: "purpleclay/imds-mock"
-          short-description: "Mock the Amazon Instance Metadata Service (IMDS) for EC2"
+          short-description: "Easy mocking of the Amazon EC2 Instance Metadata Service (IMDS)"
           readme-filepath: ./README.md
 
       - name: Trivy Vulnerability Scan
