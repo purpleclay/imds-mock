@@ -81,14 +81,13 @@ jobs:
           config: htmltest.yml
 
       - name: Patch mkdocs.yml
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           find: 'site_url: ""'
           replace: 'site_url: "https://docs.purpleclay.dev/${{ github.event.repository.name }}/"'
           regex: false
           include: mkdocs.yml
-
-      - run: cat mkdocs.yml
 
       - name: Deploy documentation
         if: startsWith(github.ref, 'refs/tags/v')
