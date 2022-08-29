@@ -84,7 +84,7 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           find: 'site_url: ""'
-          replace: 'site_url: "https://docs.purpleclay.dev/${GITHUB_REPOSITORY#*/}/"'
+          replace: 'site_url: "https://docs.purpleclay.dev/${{GITHUB_REPOSITORY#*/}}/"'
           regex: false
           include: mkdocs.yml
 
