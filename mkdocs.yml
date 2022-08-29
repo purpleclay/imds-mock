@@ -1,5 +1,6 @@
 site_name: Instance Metadata Service Mock
 site_description: Easy mocking of the Amazon EC2 Instance Metadata Service (IMDS)
+# Only set during a release to ensure htmltest doesn't break due to non existent directories
 site_url: ""
 copyright: Always thinking. Forever learning. 💡
 repo_name: purpleclay/imds-mock
