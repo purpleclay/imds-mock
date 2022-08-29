@@ -181,7 +181,7 @@ func Serve() (*gin.Engine, error) {
 // in the exact same way as the IMDS service accessible from any EC2 instance
 func ServeWith(opts Options) (*gin.Engine, error) {
 	r := gin.New()
-	injectMiddleware(r, opts)
+	injectGlobalMiddleware(r, opts)
 
 	// see: https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies
 	r.SetTrustedProxies(nil)
@@ -216,11 +216,14 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 		}
 	}
 
-	r.GET("/latest/meta-data", middleware.Cache(memcache), func(c *gin.Context) {
+	// Determine the type of auth for each endpoint
+	authMiddleware := selectAuthMiddleware(opts)
+
+	r.GET("/latest/meta-data", authMiddleware, middleware.Cache(memcache), func(c *gin.Context) {
 		c.String(http.StatusOK, keys(mockResponse.Bytes(), ""))
 	})
 
-	r.GET("/latest/meta-data/*category", middleware.Cache(memcache), func(c *gin.Context) {
+	r.GET("/latest/meta-data/*category", authMiddleware, middleware.Cache(memcache), func(c *gin.Context) {
 		categoryPath := c.Param("category")
 		if categoryPath == "/" {
 			// Exact same behaviour as /latest/meta-data
@@ -257,6 +260,7 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 		}
 	})
 
+	// Don't protect the token endpoint with any auth middleware
 	r.PUT("/latest/api/token", func(c *gin.Context) {
 		ttl, err := strconv.Atoi(c.Request.Header.Get(V2TokenTTLHeader))
 
@@ -281,21 +285,23 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 	return r, err
 }
 
-func injectMiddleware(r *gin.Engine, opts Options) {
+func injectGlobalMiddleware(r *gin.Engine, opts Options) {
 	logger, _ := zap.NewProduction()
 	r.Use(middleware.ZapLogger(logger), middleware.ZapRecovery(logger))
-
-	if opts.IMDSv2 {
-		r.Use(middleware.StrictV2())
-	} else {
-		r.Use(middleware.V1OptionalV2())
-	}
 
 	if opts.Pretty {
 		r.Use(middleware.PrettyJSON())
 	} else {
 		r.Use(middleware.CompactJSON())
 	}
+}
+
+func selectAuthMiddleware(opts Options) gin.HandlerFunc {
+	if opts.IMDSv2 {
+		return middleware.StrictV2()
+	}
+
+	return middleware.V1OptionalV2()
 }
 
 func keys(json []byte, path string) string {

@@ -41,6 +41,7 @@ import (
 var testOptions = imds.Options{
 	AutoStart:           false,
 	ExcludeInstanceTags: imds.DefaultOptions.ExcludeInstanceTags,
+	IMDSv2:              imds.DefaultOptions.IMDSv2,
 	InstanceTags:        imds.DefaultOptions.InstanceTags,
 	Pretty:              imds.DefaultOptions.Pretty,
 	Spot:                imds.DefaultOptions.Spot,
@@ -297,7 +298,22 @@ func TestAPIToken(t *testing.T) {
 	r, _ := imds.ServeWith(testOptions)
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	require.Equal(t, http.StatusOK, w.Code)
+	assert.NotEmpty(t, w.Body.String())
+}
+
+func TestAPITokenIMDSv2(t *testing.T) {
+	opts := testOptions
+	opts.IMDSv2 = true
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPut, "/latest/api/token", http.NoBody)
+	req.Header.Add(imds.V2TokenTTLHeader, "10")
+
+	r, _ := imds.ServeWith(opts)
+	r.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusOK, w.Code)
 	assert.NotEmpty(t, w.Body.String())
 }
 
@@ -403,6 +419,6 @@ func TestSpotSimulationWithDelay(t *testing.T) {
 	time.Sleep(200 * time.Millisecond)
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
+	require.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Body.String(), `"action":"hibernate"`)
 }
