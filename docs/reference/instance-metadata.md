@@ -54,15 +54,15 @@ The following table lists the categories of instance metadata. {==Highlighted==}
 | `metrics/vhostmd`                                                     | :material-close:{title="not supported"}                |
 | `network/interfaces/macs/{==mac==}/device-number`                     | :material-check-all:{title="fully supported"} `v0.1.0` |
 | `network/interfaces/macs/{==mac==}/interface-id`                      | :material-check-all:{title="fully supported"} `v0.1.0` |
-| `network/interfaces/macs/{==mac==}/ipv4-associations/{==public-ip==}` | :material-check-all:{title="fully supported"} `v0.1.0` |
+| `network/interfaces/macs/{==mac==}/ipv4-associations/{==public-ip==}` | :material-close:{title="not supported"}                |
 | `network/interfaces/macs/{==mac==}/ipv6s`                             | :material-close:{title="not supported"}                |
 | `network/interfaces/macs/{==mac==}/local-hostname`                    | :material-check-all:{title="fully supported"} `v0.1.0` |
 | `network/interfaces/macs/{==mac==}/local-ipv4s`                       | :material-check-all:{title="fully supported"} `v0.1.0` |
 | `network/interfaces/macs/{==mac==}/mac`                               | :material-check-all:{title="fully supported"} `v0.1.0` |
 | `network/interfaces/macs/{==mac==}/network-card-index`                | :material-check-all:{title="fully supported"} `v0.1.0` |
 | `network/interfaces/macs/{==mac==}/owner-id`                          | :material-check-all:{title="fully supported"} `v0.1.0` |
-| `network/interfaces/macs/{==mac==}/public-hostname`                   | :material-check-all:{title="fully supported"} `v0.1.0` |
-| `network/interfaces/macs/{==mac==}/public-ipv4s`                      | :material-check-all:{title="fully supported"} `v0.1.0` |
+| `network/interfaces/macs/{==mac==}/public-hostname`                   | :material-close:{title="not supported"}                |
+| `network/interfaces/macs/{==mac==}/public-ipv4s`                      | :material-close:{title="not supported"}                |
 | `network/interfaces/macs/{==mac==}/security-groups`                   | :material-check-all:{title="fully supported"} `v0.1.0` |
 | `network/interfaces/macs/{==mac==}/security-group-ids`                | :material-check-all:{title="fully supported"} `v0.1.0` |
 | `network/interfaces/macs/{==mac==}/subnet-id`                         | :material-check-all:{title="fully supported"} `v0.1.0` |
@@ -74,13 +74,13 @@ The following table lists the categories of instance metadata. {==Highlighted==}
 | `network/interfaces/macs/{==mac==}/vpc-ipv6-cidr-blocks`              | :material-check-all:{title="fully supported"} `v0.1.0` |
 | `placement/availability-zone`                                         | :material-check-all:{title="fully supported"} `v0.1.0` |
 | `placement/availability-zone-id`                                      | :material-check-all:{title="fully supported"} `v0.1.0` |
-| `placement/group-name`                                                | :material-check-all:{title="fully supported"} `v0.1.0` |
-| `placement/host-id`                                                   | :material-check-all:{title="fully supported"} `v0.1.0` |
-| `placement/partition-number`                                          | :material-check-all:{title="fully supported"} `v0.1.0` |
+| `placement/group-name`                                                | :material-close:{title="not supported"}                |
+| `placement/host-id`                                                   | :material-close:{title="not supported"}                |
+| `placement/partition-number`                                          | :material-close:{title="not supported"}                |
 | `placement/region`                                                    | :material-check-all:{title="fully supported"} `v0.1.0` |
-| `product-codes`                                                       | :material-check-all:{title="fully supported"} `v0.1.0` |
-| `public-hostname`                                                     | :material-check-all:{title="fully supported"} `v0.1.0` |
-| `public-ipv4`                                                         | :material-check-all:{title="fully supported"} `v0.1.0` |
+| `product-codes`                                                       | :material-close:{title="not supported"}                |
+| `public-hostname`                                                     | :material-close:{title="not supported"}                |
+| `public-ipv4`                                                         | :material-close:{title="not supported"}                |
 | `public-keys/0/openssh-key`                                           | :material-check-all:{title="fully supported"} `v0.1.0` |
 | `ramdisk-id`                                                          | :material-close:{title="not supported"}                |
 | `reservation-id`                                                      | :material-check-all:{title="fully supported"} `v0.1.0` |
