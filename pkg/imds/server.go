@@ -232,6 +232,13 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 		categoryPath = strings.TrimSuffix(categoryPath, "/")
 		categoryPath = strings.ReplaceAll(categoryPath, "/", ".")[1:]
 
+		// The IMDS service returns a 404 when attempting to query a field within a JSON instance category
+		if isReservedPathChild(categoryPath) {
+			c.Writer.Header().Add("Content-Type", "text/html")
+			c.String(http.StatusNotFound, notFound)
+			return
+		}
+
 		res := gjson.GetBytes(mockResponse.Bytes(), categoryPath)
 
 		if !res.Exists() {
@@ -317,6 +324,15 @@ func keys(json []byte, path string) string {
 	}
 
 	return strings.Join(categories, "\n")
+}
+
+func isReservedPathChild(path string) bool {
+	for key := range reservedPaths {
+		if strings.HasPrefix(path, key) && path != key {
+			return true
+		}
+	}
+	return false
 }
 
 func notReservedPath(path string) bool {
