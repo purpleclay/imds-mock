@@ -165,10 +165,10 @@ var DefaultOptions = Options{
 // Used as a hashset for quick lookups. Any matched path will just return its value
 // and not be used to perform a key lookup
 var reservedPaths = map[string]struct{}{
-	"iam.info":                         {},
-	"iam.security-credentials":         {},
-	"spot.instance-action":             {},
-	"events.recommendations.rebalance": {},
+	"iam.info":                            {},
+	"iam.security-credentials.ssm-access": {},
+	"spot.instance-action":                {},
+	"events.recommendations.rebalance":    {},
 }
 
 // Serve configures the IMDS mock using default options to handle HTTP requests
@@ -231,6 +231,13 @@ func ServeWith(opts Options) (*gin.Engine, error) {
 		// Convert param into gjson path query
 		categoryPath = strings.TrimSuffix(categoryPath, "/")
 		categoryPath = strings.ReplaceAll(categoryPath, "/", ".")[1:]
+
+		// The IMDS service returns a 404 when attempting to query a field within a JSON instance category
+		if isReservedPathChild(categoryPath) {
+			c.Writer.Header().Add("Content-Type", "text/html")
+			c.String(http.StatusNotFound, notFound)
+			return
+		}
 
 		res := gjson.GetBytes(mockResponse.Bytes(), categoryPath)
 
@@ -317,6 +324,15 @@ func keys(json []byte, path string) string {
 	}
 
 	return strings.Join(categories, "\n")
+}
+
+func isReservedPathChild(path string) bool {
+	for key := range reservedPaths {
+		if strings.HasPrefix(path, key) && path != key {
+			return true
+		}
+	}
+	return false
 }
 
 func notReservedPath(path string) bool {

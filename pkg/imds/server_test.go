@@ -186,6 +186,29 @@ func TestCategoryValueIsPrettyJSON(t *testing.T) {
 `, w.Body.String())
 }
 
+func TestCategoryPathIsChildOfJSON(t *testing.T) {
+	r, _ := imds.ServeWith(testOptions)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/latest/meta-data/iam/info/Code", http.NoBody)
+
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, "text/html", w.Result().Header["Content-Type"][0])
+	assert.Equal(t, `<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+ <head>
+  <title>404 - Not Found</title>
+ </head>
+ <body>
+  <h1>404 - Not Found</h1>
+ </body>
+</html>`, w.Body.String())
+}
+
 func TestCategoryPathDoesNotExist(t *testing.T) {
 	r, _ := imds.ServeWith(testOptions)
 
