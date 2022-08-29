@@ -81,13 +81,12 @@ jobs:
           config: htmltest.yml
 
       - name: Patch mkdocs.yml
-        uses: fjogeleit/yaml-update-action@main
+        uses: jacobtomlinson/gha-find-replace@v2
         with:
-          valueFile: mkdocs.yml
-          propertyPath: site_url
-          value: https://docs.purpleclay.dev/imds-mock/
-          commitChange: false
-          updateFile: true
+          find: 'site_url: ""'
+          replace: 'site_url: "https://docs.purpleclay.dev/imds-mock/"'
+          regex: false
+          include: mkdocs.yml
 
       - run: cat mkdocs.yml
 
