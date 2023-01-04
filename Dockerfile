@@ -1,4 +1,4 @@
-FROM busybox:1.35.0 AS build
+FROM busybox:1.36.0 AS build
 
 ENV TINI_VERSION v0.19.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static /tini-static
