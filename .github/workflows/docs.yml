@@ -82,7 +82,7 @@ jobs:
 
       - name: Patch mkdocs.yml
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: jacobtomlinson/gha-find-replace@v2
+        uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: 'site_url: ""'
           replace: 'site_url: "https://docs.purpleclay.dev/${{ github.event.repository.name }}/"'
