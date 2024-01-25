@@ -86,7 +86,7 @@ jobs:
           AUR_KEY: ${{ secrets.GH_AUR_KEY }}
 
       - name: Docker Hub Description
-        uses: peter-evans/dockerhub-description@v3
+        uses: peter-evans/dockerhub-description@v4
         with:
           username: ${{ secrets.GH_DOCKER_HUB_USERNAME }}
           password: ${{ secrets.GH_DOCKER_HUB_PASSWORD }}
