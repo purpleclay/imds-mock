@@ -3,7 +3,7 @@ module github.com/purpleclay/imds-mock
 go 1.18
 
 require (
-	github.com/evanphx/json-patch/v5 v5.8.1
+	github.com/evanphx/json-patch/v5 v5.9.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/muesli/mango-cobra v1.2.0
 	github.com/muesli/roff v0.1.0
